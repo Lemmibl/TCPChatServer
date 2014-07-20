@@ -12,6 +12,7 @@ CEGUIWrapper::CEGUIWrapper()
 
 CEGUIWrapper::~CEGUIWrapper()
 {
+	Shutdown();
 }
 
 bool CEGUIWrapper::Initialize()
@@ -187,5 +188,5 @@ void CEGUIWrapper::Render()
 
 void CEGUIWrapper::Shutdown()
 {
-
+	CEGUI::System::destroy();
 }

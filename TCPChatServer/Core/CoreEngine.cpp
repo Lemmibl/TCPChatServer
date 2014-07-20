@@ -21,11 +21,11 @@ CoreEngine::CoreEngine()
 
 CoreEngine::~CoreEngine()
 {
+	Cleanup();
 }
 
 void CoreEngine::Cleanup()
 {
-
 	glfwDestroyWindow(glfwWindow);
 
 	glfwTerminate();

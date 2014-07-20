@@ -36,8 +36,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(ProjectDir)/CEGUI/lib;$(ProjectDir)/GLFW/Debug;$(ProjectDir)/Settings/LibConfig;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)/Settings;$(ProjectDir)/GLFW/include;$(ProjectDir)/Settings/LibConfig;$(ProjectDir)/CEGUI/include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)/CEGUI/lib;$(ProjectDir)/GLFW/Debug;$(ProjectDir)/Settings/LibConfig;C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)/Settings;$(ProjectDir)/GLFW/include;$(ProjectDir)/Settings/LibConfig;$(ProjectDir)/CEGUI/include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -69,6 +69,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Core\Systems\ClientMessageHandler.cpp" />
+    <ClCompile Include="CEGUI\CEGUIMessageBox.cpp" />
     <ClCompile Include="Network\PacketTypes\ColoredTextPacket.cpp" />
     <ClCompile Include="Network\PacketTypes\Packet.cpp" />
     <ClCompile Include="CEGUI\FormattedListboxTextItem.cpp" />
@@ -94,6 +95,7 @@
     <ClCompile Include="Network\SocketWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CEGUI\CEGUIMessageBox.h" />
     <ClInclude Include="Network\ChatUserData.h" />
     <ClInclude Include="Core\Systems\ClientMessageHandler.h" />
     <ClInclude Include="Network\PacketTypes\ColoredTextPacket.h" />

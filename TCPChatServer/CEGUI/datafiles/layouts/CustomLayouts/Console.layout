@@ -7,6 +7,7 @@
 		<Property name="MinSize" value="{{0.2,0},{0.2,0}}" />
 		<Property name="AlwaysOnTop" value="True" />
 		<Property name="DragMovingEnabled" value="False" />
+		<Property name="RollUpEnabled" value="False" />
 		<Property name="CloseButtonEnabled" value="False" />
 		<Window type="TaharezLook/Button" name="Submit" >
 			<Property name="ID" value="1" />

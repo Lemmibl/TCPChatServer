@@ -7,6 +7,8 @@
 #include "../../CEGUI/GameConsoleWindow.h"
 #include "../../CEGUI/ClientSidebarWindow.h"
 
+#include "../../CEGUI/CEGUIMessageBox.h"
+
 ClientScreen::ClientScreen() : ScreenBase()
 {
 }
@@ -172,6 +174,7 @@ void ClientScreen::UpdateConnectionStatus(bool active)
 		}
 		else
 		{
+			new CEGUIMessageBox("Couldn't connect to the server. Did you write the right IP?");
 			active = false;
 			sidebarWindow->Disconnect();
 		}
