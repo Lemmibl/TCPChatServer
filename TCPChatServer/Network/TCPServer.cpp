@@ -28,25 +28,15 @@ TCPServer::~TCPServer()
 	Shutdown();
 }
 
-bool TCPServer::Initialize(const ServerSettings& settings, GameConsoleWindow *const console)
+bool TCPServer::Initialize(const ServerSettings settings, GameConsoleWindow *const console)
 {
 	consoleWindow = console;
+	settingsObject = settings;
 
-	//Copy settings and store locally
-	memcpy(&settingsObject, &settings, sizeof(ServerSettings));
-
-	#ifdef _WIN32
-	// create WSADATA object
-	WSADATA wsaData;
-
-	// Initialize Winsock
-	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-	if (iResult != 0) 
+	if(!OpenWSA())
 	{
-		consoleWindow->PrintText("WSAStartup failed with error: " + iResult, serverColour);
 		return false;
 	}
-	#endif
 
 	return true;
 }
@@ -55,9 +45,7 @@ void TCPServer::Shutdown()
 {
 	StopHosting();
 
-	#ifdef _WIN32
-	WSACleanup();
-	#endif
+	CloseWSA();
 }
 
 bool TCPServer::AddClient()
@@ -303,4 +291,28 @@ bool TCPServer::StopHosting()
 	{
 		return false;
 	}
+}
+
+bool TCPServer::OpenWSA()
+{
+#ifdef _WIN32
+	WSADATA wsaData;
+
+	// Initialize Winsock
+	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+	if(iResult < 0) 
+	{
+		consoleWindow->PrintText("WSAStartup failed. Error code: " + iResult);
+		return false;
+	}
+#endif
+
+	return true;
+}
+
+void TCPServer::CloseWSA()
+{
+#ifdef _WIN32
+	WSACleanup();
+#endif
 }

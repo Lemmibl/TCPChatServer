@@ -29,19 +29,12 @@ bool TCPClient::Connect(CEGUI::String ip, CEGUI::String port)
 	addrinfo* ptr = NULL;
 	addrinfo hints;
 
-	consoleWindow->PrintText("Now trying to connect to IP: " + ip + " Port: " + port);
-
-	#ifdef _WIN32
-	WSADATA wsaData;
-
-	// Initialize Winsock
-	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-	if(iResult < 0) 
+	if(!OpenWSA())
 	{
-		consoleWindow->PrintText("WSAStartup failed. Error code: " + iResult);
 		return false;
 	}
-	#endif
+
+	consoleWindow->PrintText("Now trying to connect to IP: " + ip + " Port: " + port);
 
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family		= AF_UNSPEC;
@@ -53,7 +46,8 @@ bool TCPClient::Connect(CEGUI::String ip, CEGUI::String port)
 	if (iResult < 0) 
 	{
 		consoleWindow->PrintText("getaddrinfo failed. Error code: " + iResult);
-		WSACleanup();
+		CloseWSA();
+
 		return false;
 	}
 
@@ -65,7 +59,7 @@ bool TCPClient::Connect(CEGUI::String ip, CEGUI::String port)
 		if (connectionSocket.GetSocket() == INVALID_SOCKET) 
 		{
 			consoleWindow->PrintText("Socket failed with error code: " + WSAGetLastError());
-			WSACleanup();
+			CloseWSA();
 			return false;
 		}
 
@@ -84,7 +78,7 @@ bool TCPClient::Connect(CEGUI::String ip, CEGUI::String port)
 	if (connectionSocket.GetSocket() == INVALID_SOCKET) 
 	{
 		consoleWindow->PrintText("Unable to connect to server!");
-		WSACleanup();
+		CloseWSA();
 		return false;
 	}
 
@@ -99,7 +93,7 @@ bool TCPClient::Connect(CEGUI::String ip, CEGUI::String port)
 	{
 		consoleWindow->PrintText("ioctlsocket failed with error: " + WSAGetLastError());
 		connectionSocket.CloseSocket();
-		WSACleanup();
+		CloseWSA();
 		exit(1);        
 	}
 
@@ -186,8 +180,6 @@ void TCPClient::Disconnect()
 void TCPClient::Shutdown()
 {
 	Disconnect();
-
-	WSACleanup();
 }
 
 bool TCPClient::ReceiveData( std::vector<std::unique_ptr<Packet>>& outData )
@@ -199,4 +191,28 @@ bool TCPClient::ReceiveData( std::vector<std::unique_ptr<Packet>>& outData )
 	ExtractDataFromServer(outData, packetSize, 0);
 
 	return true;
+}
+
+bool TCPClient::OpenWSA()
+{
+#ifdef _WIN32
+	WSADATA wsaData;
+
+	// Initialize Winsock
+	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+	if(iResult < 0) 
+	{
+		consoleWindow->PrintText("WSAStartup failed. Error code: " + iResult);
+		return false;
+	}
+#endif
+
+	return true;
+}
+
+void TCPClient::CloseWSA()
+{
+	#ifdef _WIN32
+		WSACleanup();
+	#endif
 }

@@ -63,7 +63,7 @@ bool ClientSidebarWindow::EventCallback_ConnectButtonPressed( const CEGUI::Event
 	//Toggle
 	connectionActive = !connectionActive;
 
-	//Depending on state, adjust text on the button
+	//Depending on state, adjust the button text
 	if(connectionActive == true)
 	{
 		sidebarWindow->getChild("ConnectButton")->setText("Disconnect");

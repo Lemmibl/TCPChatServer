@@ -16,9 +16,7 @@ public:
 
 	bool Update();
 	void Render();
-
 	void SwitchState(SystemStates::State newState);
-
 	bool IsRunning() { return running; }
 
 private:

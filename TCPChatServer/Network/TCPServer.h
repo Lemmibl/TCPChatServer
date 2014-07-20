@@ -34,7 +34,7 @@ public:
 	bool StopHosting();
 
 	//Potentially receive a port? A password? Welcome message?
-	bool Initialize(const ServerSettings& settings, GameConsoleWindow *const consoleWindow);
+	bool Initialize(const ServerSettings settings, GameConsoleWindow *const consoleWindow);
 	void Shutdown();
 
 	//See if any client has sent any data since last time.
@@ -46,6 +46,9 @@ public:
 	bool DistributeData(std::vector<std::unique_ptr<Packet>>& inData);
 
 private:
+	bool OpenWSA();
+	void CloseWSA();
+
 	bool AddClient();
 
 	//Recursively extracts data until everything has been added to Outpackets in an ordered fashion

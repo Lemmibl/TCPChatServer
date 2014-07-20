@@ -39,6 +39,9 @@ private:
 //Recursively extracts data until everything has been added to Outpackets in an ordered fashion
 void ExtractDataFromServer(std::vector<std::unique_ptr<Packet>>& outPackets, int packetSize, int packetIndex = 0);
 
+bool OpenWSA();
+void CloseWSA();
+
 private:
 //Just for debugging purposes...?
 GameConsoleWindow* const consoleWindow;
