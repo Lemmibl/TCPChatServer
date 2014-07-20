@@ -36,8 +36,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(ProjectDir)/CEGUI/lib;$(ProjectDir)/GLFW/Debug;$(ProjectDir)/Settings/LibConfig;C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)/Settings;$(ProjectDir)/GLFW/include;$(ProjectDir)/Settings/LibConfig;$(ProjectDir)/CEGUI/include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)/CEGUI/lib;$(ProjectDir)/GLFW/Debug;$(ProjectDir)/Settings/LibConfig;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)/Settings;$(ProjectDir)/GLFW/include;$(ProjectDir)/Settings/LibConfig;$(ProjectDir)/CEGUI/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
