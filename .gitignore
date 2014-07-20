@@ -30,5 +30,6 @@
 *.cache
 *.ipch
 *.sdf
+*.opensdf
 *.res
 *.unsuccessfulbuild
