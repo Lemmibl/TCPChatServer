@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4411177B-DC43-466A-AEDA-365C3042ACB2}</ProjectGuid>
+    <RootNamespace>TCPChatServer</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LibraryPath>$(ProjectDir)/CEGUI/lib;$(ProjectDir)/GLFW/Debug;$(ProjectDir)/Settings/LibConfig;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)/Settings;$(ProjectDir)/GLFW/include;$(ProjectDir)/Settings/LibConfig;$(ProjectDir)/CEGUI/include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;CEGUIBase-0_d.lib;CEGUICoreWindowRendererSet_d.lib;CEGUICommonDialogs-0_d.lib;CEGUIOpenGLRenderer-0_d.lib;libconfig++.lib;ws2_32.lib;Mswsock.lib;AdvApi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Core\Systems\ClientMessageHandler.cpp" />
+    <ClCompile Include="Network\PacketTypes\ColoredTextPacket.cpp" />
+    <ClCompile Include="Network\PacketTypes\Packet.cpp" />
+    <ClCompile Include="CEGUI\FormattedListboxTextItem.cpp" />
+    <ClCompile Include="CEGUI\GameConsoleWindow.cpp" />
+    <ClCompile Include="CEGUI\ClientSidebarWindow.cpp" />
+    <ClCompile Include="Core\Screens\ClientScreen.cpp" />
+    <ClCompile Include="Core\CoreEngine.cpp" />
+    <ClCompile Include="CEGUI\CEGUIWrapper.cpp" />
+    <ClCompile Include="Core\Systems\InputSingleton.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Core\Systems\ServerMessageHandler.cpp" />
+    <ClCompile Include="Core\Screens\MainMenuScreen.cpp" />
+    <ClCompile Include="Network\TCPServer.cpp" />
+    <ClCompile Include="Core\Systems\UserManager.cpp" />
+    <ClCompile Include="Core\StateMachine.cpp" />
+    <ClCompile Include="Core\Screens\ServerScreen.cpp" />
+    <ClCompile Include="Core\Screens\OptionsScreen.cpp" />
+    <ClCompile Include="Network\TCPClient.cpp" />
+    <ClCompile Include="CEGUI\ServerSidebarWindow.cpp" />
+    <ClCompile Include="Network\PacketTypes\TextPacket.cpp" />
+    <ClCompile Include="Network\PacketTypes\PacketHeader.cpp" />
+    <ClCompile Include="Network\PacketTypes\UserDataPacket.cpp" />
+    <ClCompile Include="Network\SocketWrapper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Network\ChatUserData.h" />
+    <ClInclude Include="Core\Systems\ClientMessageHandler.h" />
+    <ClInclude Include="Network\PacketTypes\ColoredTextPacket.h" />
+    <ClInclude Include="Network\PacketTypes\Packet.h" />
+    <ClInclude Include="CEGUI\FormattedListboxTextItem.h" />
+    <ClInclude Include="CEGUI\GameConsoleWindow.h" />
+    <ClInclude Include="CEGUI\ClientSidebarWindow.h" />
+    <ClInclude Include="Core\Screens\ClientScreen.h" />
+    <ClInclude Include="Core\Screens\ScreenBase.h" />
+    <ClInclude Include="Core\CoreEngine.h" />
+    <ClInclude Include="CEGUI\CEGUIWrapper.h" />
+    <ClInclude Include="Core\SystemStates.h" />
+    <ClInclude Include="Events\SchladetschEvents.h" />
+    <ClInclude Include="Core\Systems\ServerMessageHandler.h" />
+    <ClInclude Include="Core\Systems\InputSingleton.h" />
+    <ClInclude Include="Core\Screens\MainMenuScreen.h" />
+    <ClInclude Include="Core\Screens\ServerScreen.h" />
+    <ClInclude Include="Core\Screens\OptionsScreen.h" />
+    <ClInclude Include="Network\NetworkData.h" />
+    <ClInclude Include="Network\ServerSettings.h" />
+    <ClInclude Include="CEGUI\ServerSidebarWindow.h" />
+    <ClInclude Include="Network\PacketTypes\PacketHeader.h" />
+    <ClInclude Include="Settings\SettingsDependent.h" />
+    <ClInclude Include="Settings\SettingsManager.h" />
+    <ClInclude Include="Network\TCPServer.h" />
+    <ClInclude Include="Core\Systems\UserManager.h" />
+    <ClInclude Include="Core\StateMachine.h" />
+    <ClInclude Include="Network\TCPClient.h" />
+    <ClInclude Include="Network\PacketTypes\TextPacket.h" />
+    <ClInclude Include="Network\PacketTypes\UserDataPacket.h" />
+    <ClInclude Include="Network\SocketWrapper.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="settings.cfg" />
+    <None Include="Settings\LibConfig\libconfig++.dll" />
+    <None Include="Settings\LibConfig\libconfig++_d.dll" />
+    <None Include="settings\libconfig\libconfig.h++" />
+    <None Include="todo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Settings\LibConfig\libconfig++.lib" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

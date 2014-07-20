@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+	<Window type="TaharezLook/FrameWindow" name="RootClientWindow" >
+		<Property name="Area" value="{{0,-25},{0,-25},{1,25},{1,25}}" />
+		<Property name="MaxSize" value="{{8,0},{8,0}}" />
+		<Property name="MinSize" value="{{0.05,0},{0.05,0}}" />
+		<Property name="ClientAreaColour" value="tl:FF4B7DC8 tr:FF4B7DC8 bl:FF4B7DC8 br:FF4B7DC8" />
+		<Property name="FrameEnabled" value="False" />
+		<Property name="SizingEnabled" value="True" />
+		<Property name="TitlebarEnabled" value="False" />
+		<Property name="DragMovingEnabled" value="False" />
+		<Property name="CloseButtonEnabled" value="False" />
+		<AutoWindow namePath="__auto_titlebar__" >
+			<Property name="DraggingEnabled" value="False" />
+		</AutoWindow>
+	</Window>
+</GUILayout>
