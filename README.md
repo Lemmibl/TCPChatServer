@@ -1,7 +1,7 @@
 TCPChatServer
 =============
 
-Simple C++ chat application using BSD sockets to send data over TCP.
+Simple C++ chat application using BSD sockets to send data over TCP. It's indended to be cross-platform, but I haven't had time to try it for Linux/Mac yet. Want to help me with that? Contact me at Lemmibl (at) gmail (dot) com !
 
 =============
 Credits:
