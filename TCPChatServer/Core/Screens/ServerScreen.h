@@ -14,7 +14,7 @@ class ServerSidebarWindow;
 class ServerScreen : public ScreenBase, public SettingsDependent
 {
 public:
-	ServerScreen(bool drawGUI);
+	ServerScreen();
 	~ServerScreen();
 
 	bool Enter();
@@ -41,9 +41,6 @@ private:
 	std::unique_ptr<ServerSidebarWindow> sidebarWindow;
 	std::unique_ptr<GameConsoleWindow> consoleWindow;
 	CEGUI::Window* rootWindow;
-
-	//Setting for if we want to run the server without any graphics.
-	const bool GUIActive;
 
 	bool serverActive;
 };

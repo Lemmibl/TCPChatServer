@@ -6,10 +6,9 @@
 #include "../../CEGUI/GameConsoleWindow.h"
 #include "../../CEGUI/ServerSidebarWindow.h"
 
-ServerScreen::ServerScreen(bool drawGUI)
+ServerScreen::ServerScreen()
 	: ScreenBase(),
-	SettingsDependent(),
-	GUIActive(drawGUI)
+	SettingsDependent()
 {
 	//Load server settings amongst other things
 	InitializeSettings(this);
@@ -47,18 +46,15 @@ bool ServerScreen::Enter()
 		ResetGUI();
 	}
 
-	if(GUIActive)
-	{
-		//Show mouse cursor
-		CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(true);
+	//Show mouse cursor
+	CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(true);
 
-		//Set this base window as root.
-		CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(rootWindow);
+	//Set this base window as root.
+	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(rootWindow);
 
-		//Not 100% sure if this is necessary but it can't hurt
-		rootWindow->activate();
-		rootWindow->show();
-	}
+	//Not 100% sure if this is necessary but it can't hurt
+	rootWindow->activate();
+	rootWindow->show();
 
 	return true;
 }
@@ -95,19 +91,16 @@ bool ServerScreen::Initialize()
 
 bool ServerScreen::InitializeGUI()
 {
-	if(GUIActive)
-	{
 
-		rootWindow = CEGUI::WindowManager::getSingletonPtr()->loadLayoutFromFile("CustomLayouts/ColoredServerBackground.layout");
+	rootWindow = CEGUI::WindowManager::getSingletonPtr()->loadLayoutFromFile("CustomLayouts/ColoredServerBackground.layout");
 
-		sidebarWindow.reset(new ServerSidebarWindow);
-		sidebarWindow->Initialize("CustomLayouts/ServerSidebar.layout", rootWindow, userManager->GetHostData());
+	sidebarWindow.reset(new ServerSidebarWindow);
+	sidebarWindow->Initialize("CustomLayouts/ServerSidebar.layout", rootWindow, userManager->GetHostData());
 
-		consoleWindow.reset(new GameConsoleWindow);
-		consoleWindow->CreateCEGUIWindow("CustomLayouts/Console.layout", rootWindow);
+	consoleWindow.reset(new GameConsoleWindow);
+	consoleWindow->CreateCEGUIWindow("CustomLayouts/Console.layout", rootWindow);
 
-		consoleWindow->setVisible(true);
-	}
+	consoleWindow->setVisible(true);
 
 	return true;
 }
@@ -141,14 +134,11 @@ bool ServerScreen::Update(double deltaTime)
 		//Message handler processes external data
 		messageHandler->Update();
 
-		if(GUIActive)
-		{
-			//Message handler processes local data
-			messageHandler->HandleLocalMessages(consoleWindow->GetNewMessages());
+		//Message handler processes local data
+		messageHandler->HandleLocalMessages(consoleWindow->GetNewMessages());
 
-			//Print everything that has happened inside message handler.
-			PrintMessageLog(messageHandler->GetMessageLog());
-		}
+		//Print everything that has happened inside message handler.
+		PrintMessageLog(messageHandler->GetMessageLog());
 
 		//Update usermanager to remove old userdata and close old connections
 		userManager->Update();
@@ -177,14 +167,13 @@ void ServerScreen::Exit()
 
 	serverActive = false;
 
-	if(GUIActive)
-	{
-		//Hide mouse cursor
-		CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(false);
 
-		//When exiting, hide and deactivate window
-		rootWindow->hide();
-	}
+	//Hide mouse cursor
+	CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(false);
+
+	//When exiting, hide and deactivate window
+	rootWindow->hide();
+
 }
 
 void ServerScreen::OnSettingsReload( Config* cfg )
@@ -209,11 +198,8 @@ void ServerScreen::UpdateServerStatus(bool activate)
 
 void ServerScreen::ResetGUI()
 {
-	if(GUIActive)
-	{
-		sidebarWindow->Reset();
-		consoleWindow->Reset();
-	}
+	sidebarWindow->Reset();
+	consoleWindow->Reset();
 }
 
 void ServerScreen::PrintMessageLog( std::vector<TextMessage>& log )
