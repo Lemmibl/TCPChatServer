@@ -89,6 +89,23 @@ void CEGUIWrapper::Update(double deltaTime)
 	CEGUI::System::getSingleton().injectTimePulse(static_cast<float>(deltaTime));
 }
 
+void CEGUIWrapper::Render()
+{
+	// make sure that before calling renderAllGUIContexts, that any bound textures
+	// and shaders used to render the scene above are disabled using
+	// glBindTexture(0) and glUseProgram(0) respectively also set
+	// glActiveTexture(GL_TEXTURE_0) 
+	// draw GUI
+	// NB: When not using >=3.2 core profile, this call should not occur
+	// between glBegin/glEnd calls.
+	CEGUI::System::getSingleton().renderAllGUIContexts();
+}
+
+void CEGUIWrapper::Shutdown()
+{
+	CEGUI::System::destroy();
+}
+
 //bool CEGUIWrapper::HandleInputs()
 //{
 //unsigned int mouseClickCount, keyPressCount;
@@ -173,20 +190,3 @@ void CEGUIWrapper::Update(double deltaTime)
 //
 //		return true;
 //}
-
-void CEGUIWrapper::Render()
-{
-	// make sure that before calling renderAllGUIContexts, that any bound textures
-	// and shaders used to render the scene above are disabled using
-	// glBindTexture(0) and glUseProgram(0) respectively also set
-	// glActiveTexture(GL_TEXTURE_0) 
-	// draw GUI
-	// NB: When not using >=3.2 core profile, this call should not occur
-	// between glBegin/glEnd calls.
-	CEGUI::System::getSingleton().renderAllGUIContexts();
-}
-
-void CEGUIWrapper::Shutdown()
-{
-	CEGUI::System::destroy();
-}

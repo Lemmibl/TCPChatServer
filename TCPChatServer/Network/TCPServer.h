@@ -14,6 +14,8 @@
 #include <memory>
 #include <unordered_map>
 
+
+#include "../CEGUI/TextMessage.h"
 #include "CEGUI/CEGUI.h"
 #include "NetworkData.h"
 #include "ServerSettings.h"
@@ -30,11 +32,13 @@ public:
 	TCPServer(UserManager *const usrMgr); //GameConsoleWindow* window
 	~TCPServer();
 
+	std::vector<TextMessage>& GetErrorMessages() { return errorMessages; }
+
 	bool StartHosting();
 	bool StopHosting();
 
 	//Potentially receive a port? A password? Welcome message?
-	bool Initialize(const ServerSettings settings, GameConsoleWindow *const consoleWindow);
+	bool Initialize(const ServerSettings settings);
 	void Shutdown();
 
 	//See if any client has sent any data since last time.
@@ -46,6 +50,8 @@ public:
 	bool DistributeData(std::vector<std::unique_ptr<Packet>>& inData);
 
 private:
+	void PrintErrorMessage(CEGUI::String text);
+
 	bool OpenWSA();
 	void CloseWSA();
 
@@ -55,11 +61,13 @@ private:
 	void ExtractClientData(UserID id, std::vector<std::unique_ptr<Packet>>& outPackets, int packetSize, int packetIndex = 0);
 
 private:
-	GameConsoleWindow* consoleWindow;
+	//This is the container that will contain all the logged events/messages that we've processed. These will be sent to the console and printed later.
+	std::vector<TextMessage> errorMessages;
 
 	//Ptr to user manager that keeps track of user data and connections for us, amongst other things.
 	UserManager* userManager;
 
+	//Currently not used, but might contain stuff like server password, MOTD and that sort of stuff.
 	ServerSettings settingsObject;
 
 	std::string defaultPort;

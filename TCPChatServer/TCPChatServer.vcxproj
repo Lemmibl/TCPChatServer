@@ -36,8 +36,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(ProjectDir)/CEGUI/lib;$(ProjectDir)/GLFW/Debug;$(ProjectDir)/Settings/LibConfig;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)/Settings;$(ProjectDir)/GLFW/include;$(ProjectDir)/Settings/LibConfig;$(ProjectDir)/CEGUI/include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)/CEGUI/lib;$(ProjectDir)/GLFW/Debug;$(ProjectDir)/Settings/LibConfig;$(ProjectDir)/VLD/lib/win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)/Settings;$(ProjectDir)/GLFW/include;$(ProjectDir)/Settings/LibConfig;$(ProjectDir)/CEGUI/include;$(ProjectDir)/VLD/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -68,8 +68,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Core\Systems\ClientMessageHandler.cpp" />
     <ClCompile Include="CEGUI\CEGUIMessageBox.cpp" />
+    <ClCompile Include="CEGUI\TextMessage.h" />
+    <ClCompile Include="Core\Screens\ServerScreenNoGUI.cpp" />
+    <ClCompile Include="Core\Systems\ClientMessageHandler.cpp" />
     <ClCompile Include="Network\PacketTypes\ColoredTextPacket.cpp" />
     <ClCompile Include="Network\PacketTypes\Packet.cpp" />
     <ClCompile Include="CEGUI\FormattedListboxTextItem.cpp" />
@@ -96,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CEGUI\CEGUIMessageBox.h" />
+    <ClInclude Include="Core\Screens\ServerScreenNoGUI.h" />
     <ClInclude Include="Network\ChatUserData.h" />
     <ClInclude Include="Core\Systems\ClientMessageHandler.h" />
     <ClInclude Include="Network\PacketTypes\ColoredTextPacket.h" />

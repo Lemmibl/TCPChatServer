@@ -113,6 +113,9 @@ bool CoreEngine::Update()
 		return false;
 	}
 
+	glfwTime = glfwGetTime();
+	deltaTime = glfwTime - deltaTime;
+
 	UpdateInput();
 
 	//Update all CEGUI elements. Inject delta time.
@@ -123,6 +126,9 @@ bool CoreEngine::Update()
 	{
 		return false;
 	}
+
+	//Save for next time
+	deltaTime = glfwTime;
 
 	return true;
 }

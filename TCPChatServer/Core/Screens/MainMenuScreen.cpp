@@ -97,7 +97,8 @@ bool MainMenuScreen::Initialize()
 		[&](const CEGUI::EventArgs& args) -> bool
 	{
 		//Throws an event that will be caught by the state machine, signalling to change to server screen
-		stateChangeEvent(SystemStates::OptionsScreen);
+		//stateChangeEvent(SystemStates::OptionsScreen);
+		CEGUIMessageBox::CreateMessageBox("This feature hasn't been implemented yet. :]");
 
 		return true;
 	};

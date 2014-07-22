@@ -25,7 +25,7 @@ bool StateMachine::Initialize()
 {
 	std::unique_ptr<MainMenuScreen> mainMenu(new MainMenuScreen());
 	//std::shared_ptr<OptionsScreen> optionsMenu = std::make_shared<OptionsScreen>();
-	std::unique_ptr<ServerScreen> serverMenu(new ServerScreen());
+	std::unique_ptr<ServerScreen> serverMenu(new ServerScreen(true));
 	std::unique_ptr<ClientScreen> clientMenu(new ClientScreen());
 
 	AddNewState(std::move(mainMenu), SystemStates::MainMenuScreen);

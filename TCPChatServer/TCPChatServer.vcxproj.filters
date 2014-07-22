@@ -26,6 +26,8 @@
     <ClCompile Include="Core\Systems\ClientMessageHandler.cpp" />
     <ClCompile Include="Network\SocketWrapper.cpp" />
     <ClCompile Include="CEGUI\CEGUIMessageBox.cpp" />
+    <ClCompile Include="CEGUI\TextMessage.h" />
+    <ClCompile Include="Core\Screens\ServerScreenNoGUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Settings\SettingsDependent.h" />
@@ -60,6 +62,7 @@
     <ClInclude Include="Network\ChatUserData.h" />
     <ClInclude Include="Network\SocketWrapper.h" />
     <ClInclude Include="CEGUI\CEGUIMessageBox.h" />
+    <ClInclude Include="Core\Screens\ServerScreenNoGUI.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="settings.cfg" />

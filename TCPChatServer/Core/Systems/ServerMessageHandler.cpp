@@ -10,13 +10,13 @@
 #include "../../Network/PacketTypes/UserDataPacket.h"
 
 	//TODO: Change local instances to normal ptrs and deconstruct them properly (= nullptr)
-ServerMessageHandler::ServerMessageHandler(UserManager* const usrMgr, GameConsoleWindow* const consoleWindow)
-:	userManager(usrMgr),
-	textConsole(consoleWindow) //Store ptr to text console
+ServerMessageHandler::ServerMessageHandler(UserManager* const usrMgr)
+:	userManager(usrMgr)
 {
 	serverColor = 0xFFFFFFFF;
-	inMessageQueue.reserve(100); //Preallocate 100 slots.
-	outMessageQueue.reserve(100); //Same here
+	inMessages.reserve(100); //Preallocate 100 slots.
+	outMessages.reserve(100); //Same here
+	messageLog.reserve(20);
 
 	/********  Or do it this way if you want a more user friendly way to insert colors (range of 0-255 for each channel) *********/
 	//for(int i = 0; i < 4; ++i)
@@ -32,20 +32,24 @@ ServerMessageHandler::ServerMessageHandler(UserManager* const usrMgr, GameConsol
 ServerMessageHandler::~ServerMessageHandler()
 {
 	userManager = nullptr;
-	textConsole = nullptr;
 }
 
-void ServerMessageHandler::HandleLocalMessages(std::vector<CEGUI::String>& messages )
+void ServerMessageHandler::HandleLocalMessages(std::vector<CEGUI::String>& messages)
 {
 	ChatUserData user = userManager->GetHostData();
 	
 	for(unsigned int i = 0; i < messages.size(); ++i)
 	{
 		//Create new string with our username and privilege level appended to the message.
-		CEGUI::String text("[Host] "+user.userName + ": " + messages[i]);
+		CEGUI::String text("[Host] " + user.userName + ": " + messages[i]);
 
 		//Print text through text console.
-		textConsole->PrintText(text, static_cast<CEGUI::Colour>(user.textColor));
+		PrintText(text, user.textColor);
+
+		//Prepare packet. This means serializing the header and resizing the packet body vector to outMessage.size().
+		std::unique_ptr<ColoredTextPacket> outPacket(new ColoredTextPacket(text, user.textColor, 0));
+
+		outMessages.push_back(std::move(outPacket));
 	}
 
 	messages.clear();
@@ -54,23 +58,24 @@ void ServerMessageHandler::HandleLocalMessages(std::vector<CEGUI::String>& messa
 
 void ServerMessageHandler::Update()
 {
-	//Clear out queue first before we add anything to it this update.
-	outMessageQueue.clear();
+	//Clear out queues first before we add anything to it this update.
+	outMessages.clear();
+	messageLog.clear();
 
-	for(unsigned int i = 0; i < inMessageQueue.size(); ++i)
+	for(unsigned int i = 0; i < inMessages.size(); ++i)
 	{
-		switch(inMessageQueue[i]->GetHeader()->GetType())
+		switch(inMessages[i]->GetHeader()->GetType())
 		{
-			case STRINGDATA:		ReadStringData(std::move(inMessageQueue[i]), false); break;
-			case COLOREDSTRINGDATA: ReadStringData(std::move(inMessageQueue[i]), true); break;
-			case DISCONNECT:		SendDisconnectMessage(inMessageQueue[i]->GetSenderID()); break;
-			case USERDATA:			ReadUserData(std::move(inMessageQueue[i])); break;
+			case STRINGDATA:		ReadStringData(std::move(inMessages[i]), false); break;
+			case COLOREDSTRINGDATA: ReadStringData(std::move(inMessages[i]), true); break;
+			case DISCONNECT:		SendDisconnectMessage(inMessages[i]->GetSenderID()); break;
+			case USERDATA:			ReadUserData(std::move(inMessages[i])); break;
 			default:				break;
 		}
 	}
 
 	//We've processed everything. Clear up for next time.
-	inMessageQueue.clear();
+	inMessages.clear();
 }
 
 //いいいいいいいいいいいいいいいいいいいいいいいいいいいいい
@@ -104,7 +109,7 @@ void ServerMessageHandler::ReadStringData(std::unique_ptr<Packet> packet, bool c
 		CEGUI::String text(user.userName + ": " + packetString);
 
 		//Print text locally. Move by value? Idk if best way to solve this. Or if there's even a problem to begin with.
-		textConsole->PrintText(text, CEGUI::Colour(user.textColor));
+		PrintText(text, CEGUI::Colour(user.textColor));
 
 		//So now that we're done with the packet, we update it to contain the altered text by re-serializing the new data.
 		if(containsColorData)
@@ -118,7 +123,7 @@ void ServerMessageHandler::ReadStringData(std::unique_ptr<Packet> packet, bool c
 		}	
 
 		//And then insert the packet back to the other queue, because it's now going to be redistributed to all other users.
-		outMessageQueue.push_back(std::move(packet));
+		outMessages.push_back(std::move(packet));
 	}
 }
 
@@ -142,13 +147,13 @@ void ServerMessageHandler::ReadUserData(std::unique_ptr<Packet> packet)
 		CEGUI::String text(user.userName + " has joined the server.", user.textColor);
 
 		//Print locally to let the host know
-		textConsole->PrintText(text, user.textColor);
+		PrintText(text, user.textColor);
 
 		//Make an outpacket
 		std::unique_ptr<TextPacket> outPacket(new TextPacket(text, packet->GetSenderID()));
 
 		//Insert outpacket
-		outMessageQueue.push_back(std::move(outPacket));
+		outMessages.push_back(std::move(outPacket));
 	}
 }
 
@@ -162,7 +167,7 @@ void ServerMessageHandler::SendEventPacket(DataPacketType eventType)
 
 	//Dont even bother with initializing the body beyond what the constructor already does
 
-	outMessageQueue.push_back(std::move(packet));
+	outMessages.push_back(std::move(packet));
 }
 
 //For our disconnect message, we just append the disconnected user's name. 
@@ -174,11 +179,15 @@ void ServerMessageHandler::SendDisconnectMessage(UserID client_id)
 	//If there is a client
 	if(userManager->GetUser(client_id, &user))
 	{
+		CEGUI::String msg(user.userName + " has disconnected from the server.");
+
+		PrintText(msg);
+
 		//Create a text packet to tell everyone else about what has happened
-		std::unique_ptr<TextPacket> outPacket(new TextPacket(CEGUI::String(user.userName + " has disconnected from the server."), client_id));
+		std::unique_ptr<TextPacket> outPacket(new TextPacket(msg, client_id));
 	
 		//and move outpacket to queue, because it won't be used here again
-		outMessageQueue.push_back(std::move(outPacket));
+		outMessages.push_back(std::move(outPacket));
 	}
 }
 
@@ -214,11 +223,16 @@ void ServerMessageHandler::SendTextPacket(CEGUI::String text, UserID userID)
 			outMessage = user.userName + ": " + text;
 		}
 
-		textConsole->PrintText(outMessage, static_cast<CEGUI::Colour>(user.textColor));
+		PrintText(outMessage, user.textColor);
 
 		//Prepare packet. This means serializing the header and resizing the packet body vector to outMessage.size().
 		std::unique_ptr<ColoredTextPacket> outPacket(new ColoredTextPacket(outMessage, user.textColor, userID));
 
-		outMessageQueue.push_back(std::move(outPacket));
+		outMessages.push_back(std::move(outPacket));
 	}
+}
+
+void ServerMessageHandler::PrintText(CEGUI::String text, CEGUI::Colour textColor)
+{
+	messageLog.push_back(std::move(TextMessage(text, textColor)));
 }
