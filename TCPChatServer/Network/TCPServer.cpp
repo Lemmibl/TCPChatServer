@@ -24,13 +24,11 @@ TCPServer::TCPServer(UserManager* const usrMgr)
 TCPServer::~TCPServer()
 {
 	userManager = nullptr;
-	consoleWindow = nullptr;
 	Shutdown();
 }
 
-bool TCPServer::Initialize(const ServerSettings settings, GameConsoleWindow *const console)
+bool TCPServer::Initialize(const ServerSettings settings)
 {
-	consoleWindow = console;
 	settingsObject = settings;
 
 	if(!OpenWSA())
@@ -79,7 +77,7 @@ bool TCPServer::ReceiveData(std::vector<std::unique_ptr<Packet>>& outData)
 	//See if we've gotten any new client connection requests
 	if(AddClient())
 	{
-		consoleWindow->PrintText("Client has been connected to the server. Client ID is: " + std::to_string((unsigned long long)userID), serverColour); 
+		outData.push_back(std::unique_ptr<TextPacket>(new TextPacket("Client has been connected to the server. Client ID is: " + std::to_string((unsigned long long)userID), 0)));
 	}
 
 	//Get begin() and end() iterators for the user map
@@ -181,7 +179,7 @@ bool TCPServer::DistributeData(std::vector<std::unique_ptr<Packet>>& inData)
 				CEGUI::String errorMsg = "Failed to send data header to client nr: " + sessionIter->first;
 				errorMsg += ". Error code: " + WSAGetLastError();
 
-				consoleWindow->PrintText(errorMsg, serverColour);
+				PrintErrorMessage(std::move(errorMsg));
 				userManager->RemoveUser(sessionIter->first);
 			}
 
@@ -196,7 +194,7 @@ bool TCPServer::DistributeData(std::vector<std::unique_ptr<Packet>>& inData)
 					CEGUI::String errorMsg = "Failed to send data to client nr: " + sessionIter->first;
 					errorMsg += ". Error code: " + WSAGetLastError();
 
-					consoleWindow->PrintText(errorMsg, serverColour);
+					PrintErrorMessage(std::move(errorMsg));
 					userManager->RemoveUser(sessionIter->first);
 				}
 			}
@@ -224,7 +222,7 @@ bool TCPServer::StartHosting()
 
 	if(iResult != 0) 
 	{
-		consoleWindow->PrintText("getaddrinfo failed with error: " + iResult, serverColour);
+		PrintErrorMessage("getaddrinfo failed with error: " + iResult);
 		Shutdown();
 		return false;
 	}
@@ -234,7 +232,7 @@ bool TCPServer::StartHosting()
 
 	if (listenSocket.GetSocket() == INVALID_SOCKET) 
 	{
-		consoleWindow->PrintText("socket failed with error: " + WSAGetLastError(), serverColour);
+		PrintErrorMessage("socket failed with error: " + WSAGetLastError());
 		freeaddrinfo(result);
 		Shutdown();
 		return false;
@@ -246,7 +244,7 @@ bool TCPServer::StartHosting()
 
 	if (iResult == SOCKET_ERROR) 
 	{
-		consoleWindow->PrintText("ioctlsocket failed with error: " + WSAGetLastError(), serverColour);
+		PrintErrorMessage("ioctlsocket failed with error: " + WSAGetLastError());
 		Shutdown();
 		return false;
 	}
@@ -256,7 +254,7 @@ bool TCPServer::StartHosting()
 
 	if (iResult == SOCKET_ERROR) 
 	{
-		consoleWindow->PrintText("bind failed with error: " + WSAGetLastError(), serverColour);
+		PrintErrorMessage("bind failed with error: " + WSAGetLastError());
 		freeaddrinfo(result);
 		Shutdown();
 		return false;
@@ -270,7 +268,7 @@ bool TCPServer::StartHosting()
 
 	if (iResult == SOCKET_ERROR) 
 	{
-		consoleWindow->PrintText("listen failed with error: " + WSAGetLastError(), serverColour);
+		PrintErrorMessage("listen failed with error: " + WSAGetLastError());
 		Shutdown();
 		return false;
 	}
@@ -289,6 +287,8 @@ bool TCPServer::StopHosting()
 	}
 	else
 	{
+		PrintErrorMessage("ListenSocket is == INVALID_SOCKET. Stopped hosting either way.");
+
 		return false;
 	}
 }
@@ -302,7 +302,7 @@ bool TCPServer::OpenWSA()
 	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
 	if(iResult < 0) 
 	{
-		consoleWindow->PrintText("WSAStartup failed. Error code: " + iResult);
+		PrintErrorMessage("WSAStartup failed. Error code: " + iResult);
 		return false;
 	}
 #endif
@@ -315,4 +315,9 @@ void TCPServer::CloseWSA()
 #ifdef _WIN32
 	WSACleanup();
 #endif
+}
+
+void TCPServer::PrintErrorMessage(CEGUI::String text)
+{
+	errorMessages.push_back(std::move(TextMessage(text, serverColour)));
 }

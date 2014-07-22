@@ -8,14 +8,12 @@
 class TCPServer;
 class UserManager;
 class ServerMessageHandler;
-class GameConsoleWindow;
-class ServerSidebarWindow;
 
-class ServerScreen : public ScreenBase, public SettingsDependent
+class ServerScreenNoGUI : public ScreenBase, public SettingsDependent
 {
 public:
-	ServerScreen(bool drawGUI);
-	~ServerScreen();
+	ServerScreenNoGUI();
+	~ServerScreenNoGUI();
 
 	bool Enter();
 	bool Initialize();
@@ -27,24 +25,15 @@ public:
 	virtual void OnSettingsReload( Config* cfg );
 
 private:
-	bool InitializeGUI();
-	void UpdateServerStatus(bool activate);
-	void ResetGUI();
-	
-	void PrintMessageLog(std::vector<TextMessage>& log);
+	//bool InitializeGUI();
+	//void UpdateServerStatus(bool activate);
+
+	//void PrintMessageLog(std::vector<TextMessage>& log);
 
 private:
 	ServerSettings serverSettings;
 	std::unique_ptr<UserManager> userManager;
 	std::unique_ptr<TCPServer> server;
 	std::unique_ptr<ServerMessageHandler> messageHandler;
-	std::unique_ptr<ServerSidebarWindow> sidebarWindow;
-	std::unique_ptr<GameConsoleWindow> consoleWindow;
-	CEGUI::Window* rootWindow;
-
-	//Setting for if we want to run the server without any graphics.
-	const bool GUIActive;
-
-	bool serverActive;
 };
 

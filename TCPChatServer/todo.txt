@@ -1,6 +1,2 @@
 1) Go over all the socket stuff and make it cross platform
-2) Make sure to delete cegui windows properly when leaving a screen
-3) move packet sending function into Packet class
-	3b) try to figure out if it's a good idea to have receive functionality in packets? Probably not?
-4) Look up crashes when exiting ...
-5) Fix workaround for "window already exists" when switching between host and client
+2) Add message box code wherever relevant

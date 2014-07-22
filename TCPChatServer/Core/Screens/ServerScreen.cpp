@@ -6,9 +6,10 @@
 #include "../../CEGUI/GameConsoleWindow.h"
 #include "../../CEGUI/ServerSidebarWindow.h"
 
-ServerScreen::ServerScreen()
+ServerScreen::ServerScreen(bool drawGUI)
 	: ScreenBase(),
-	SettingsDependent()	
+	SettingsDependent(),
+	GUIActive(drawGUI)
 {
 	//Load server settings amongst other things
 	InitializeSettings(this);
@@ -40,19 +41,24 @@ bool ServerScreen::Enter()
 	}
 	else
 	{
+		serverActive = false;
+
 		//If this class has already been initialized we just do a reset of everything relevant. Essentially the same effect.
 		ResetGUI();
 	}
 
-	//Show mouse cursor
-	CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(true);
+	if(GUIActive)
+	{
+		//Show mouse cursor
+		CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(true);
 
-	//Set this base window as root.
-	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(rootWindow);
+		//Set this base window as root.
+		CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(rootWindow);
 
-	//Not 100% sure if this is necessary but it can't hurt
-	rootWindow->activate();
-	rootWindow->show();
+		//Not 100% sure if this is necessary but it can't hurt
+		rootWindow->activate();
+		rootWindow->show();
+	}
 
 	return true;
 }
@@ -72,13 +78,13 @@ bool ServerScreen::Initialize()
 	}
 
 	//Create message handler
-	messageHandler = std::unique_ptr<ServerMessageHandler>(new ServerMessageHandler(userManager.get(), consoleWindow.get()));
+	messageHandler = std::unique_ptr<ServerMessageHandler>(new ServerMessageHandler(userManager.get()));
 
 	//Create TCP server
 	server = std::unique_ptr<TCPServer>(new TCPServer(userManager.get()));
 
 	//Initialize TCP server with loaded settings
-	result = server->Initialize(serverSettings, consoleWindow.get());
+	result = server->Initialize(serverSettings);
 	if(!result)
 	{
 		return false;
@@ -89,15 +95,19 @@ bool ServerScreen::Initialize()
 
 bool ServerScreen::InitializeGUI()
 {
-	rootWindow = CEGUI::WindowManager::getSingletonPtr()->loadLayoutFromFile("CustomLayouts/ColoredServerBackground.layout");
+	if(GUIActive)
+	{
 
-	sidebarWindow.reset(new ServerSidebarWindow);
-	sidebarWindow->Initialize("CustomLayouts/ServerSidebar.layout", rootWindow, userManager->GetHostData());
+		rootWindow = CEGUI::WindowManager::getSingletonPtr()->loadLayoutFromFile("CustomLayouts/ColoredServerBackground.layout");
 
-	consoleWindow.reset(new GameConsoleWindow);
-	consoleWindow->CreateCEGUIWindow("CustomLayouts/Console.layout", rootWindow);
+		sidebarWindow.reset(new ServerSidebarWindow);
+		sidebarWindow->Initialize("CustomLayouts/ServerSidebar.layout", rootWindow, userManager->GetHostData());
 
-	consoleWindow->setVisible(true);
+		consoleWindow.reset(new GameConsoleWindow);
+		consoleWindow->CreateCEGUIWindow("CustomLayouts/Console.layout", rootWindow);
+
+		consoleWindow->setVisible(true);
+	}
 
 	return true;
 }
@@ -120,26 +130,31 @@ bool ServerScreen::Update(double deltaTime)
 		UpdateServerStatus(serverActive);
 	}	
 
-	//K, so in this order:
 	if(serverActive)
 	{
-		//1. Server receives new data
-		if(!server->ReceiveData(messageHandler->GetInMessageQueue()))
+		//Server receives new data
+		if(!server->ReceiveData(messageHandler->GetInMessages()))
 		{
 			return false;
 		}
 
-		//2. Message handler processes local data
-		messageHandler->HandleLocalMessages(consoleWindow->GetNewMessages());
-
-		//3. Message handler processes external data
+		//Message handler processes external data
 		messageHandler->Update();
 
-		//4. Update usermanager to remove old userdata and close old connections
+		if(GUIActive)
+		{
+			//Message handler processes local data
+			messageHandler->HandleLocalMessages(consoleWindow->GetNewMessages());
+
+			//Print everything that has happened inside message handler.
+			PrintMessageLog(messageHandler->GetMessageLog());
+		}
+
+		//Update usermanager to remove old userdata and close old connections
 		userManager->Update();
 
-		//5. Server redistributes new data
-		if(!server->DistributeData(messageHandler->GetOutMessageQueue()))
+		//Server redistributes new data
+		if(!server->DistributeData(messageHandler->GetOutMessages()))
 		{
 			return false;
 		}
@@ -162,21 +177,23 @@ void ServerScreen::Exit()
 
 	serverActive = false;
 
-	//Hide mouse cursor
-	CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(false);
+	if(GUIActive)
+	{
+		//Hide mouse cursor
+		CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(false);
 
-	//When exiting, hide and deactivate window
-	rootWindow->hide();
+		//When exiting, hide and deactivate window
+		rootWindow->hide();
+	}
 }
 
 void ServerScreen::OnSettingsReload( Config* cfg )
 {
 }
 
-void ServerScreen::UpdateServerStatus(bool active)
+void ServerScreen::UpdateServerStatus(bool activate)
 {
-	//Can't get much simpler than this
-	if(active)
+	if(activate)
 	{
 		//If we've just connected, there might be a bunch of messages that have been queued up. 
 		//Let's get rid of those. Why? I don't really know, but it would surprise me as a user if that didn't happen.
@@ -192,7 +209,19 @@ void ServerScreen::UpdateServerStatus(bool active)
 
 void ServerScreen::ResetGUI()
 {
-	serverActive = false;
-	sidebarWindow->Reset();
-	consoleWindow->Reset();
+	if(GUIActive)
+	{
+		sidebarWindow->Reset();
+		consoleWindow->Reset();
+	}
+}
+
+void ServerScreen::PrintMessageLog( std::vector<TextMessage>& log )
+{
+	for(unsigned int i = 0; i < log.size(); ++i)
+	{
+		consoleWindow->PrintText(log[i].text, log[i].textColor);
+	}
+
+	log.clear();
 }

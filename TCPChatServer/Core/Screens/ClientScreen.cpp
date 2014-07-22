@@ -174,7 +174,8 @@ void ClientScreen::UpdateConnectionStatus(bool active)
 		}
 		else
 		{
-			new CEGUIMessageBox("Couldn't connect to the server. Did you write the right IP?");
+			CEGUIMessageBox::CreateMessageBox("Couldn't connect to the server. Did you write the right IP?");
+
 			active = false;
 			sidebarWindow->Disconnect();
 		}

@@ -1,7 +1,7 @@
 TCPChatServer
 =============
 
-Simple C++ chat application using BSD sockets to send data over TCP.
+Simple C++ chat application using BSD sockets to send data over TCP. It's indended to be cross-platform, but I haven't had time to try it for Linux/Mac yet. Want to help me with that? Contact me at Lemmibl (at) gmail (dot) com !
 
 =============
 Credits:
@@ -11,6 +11,7 @@ I use the following libraries:
 * CEGUI     -> http://cegui.org.uk/
 * GLFW      -> http://www.glfw.org/
 * Libconfig -> http://www.hyperrealm.com/libconfig/
+* Visual Leak Detector (Only while debugging, of course) -> https://vld.codeplex.com/
 
 I also use code from the following people:
 * Christian Schladetsch's Event code -> http://www.altdevblogaday.com/2011/10/30/c-events/

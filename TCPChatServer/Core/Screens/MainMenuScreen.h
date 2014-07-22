@@ -1,6 +1,7 @@
 #pragma once
 #include "ScreenBase.h"
 #include "CEGUI/CEGUI.h"
+#include "../../CEGUI/CEGUIMessageBox.h"
 
 class MainMenuScreen : public ScreenBase
 {
