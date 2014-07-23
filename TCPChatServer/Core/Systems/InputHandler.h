@@ -4,21 +4,19 @@
 
 #include <GLFW/glfw3.h>
 
-class InputSingleton
+class InputHandler
 {
 public:
-	static InputSingleton& GetInstance()
+	//Don't forget to call initialize!
+	static InputHandler& GetInstance()
 	{
-		static InputSingleton inputClass;
+		static InputHandler handler;
 
-		return inputClass;
+		return handler;
 	}
 
-	void SetGLFWWindow(GLFWwindow* val) { glfwWindow = val; }
-
-	//Getters
-	//bool IsMouseButtonDown(int buttonCode);
-	//bool IsKeyDown(int keyCode);
+	void Initialize(GLFWwindow* window);
+	void Update(double deltaTime);
 
 	//Setters
 	void SetMouseButtonState(int button, bool state);
@@ -26,8 +24,11 @@ public:
 	void SetMousePosition(double xDelta, double yDelta);
 	void SetKeyState(int keycode, bool state);
 	void InjectChar(unsigned int keycode);
-
 	void LockMouse(bool val);
+
+	//Getters not used. Using glfw instead.
+	//bool IsMouseButtonDown(int buttonCode);
+	//bool IsKeyDown(int keyCode);
 
 	//Static callback functions
 	static void GLFWMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
@@ -39,19 +40,25 @@ public:
 	static void GLFWWindowResizeCallback(GLFWwindow* window, int width, int height);
 
 private:
+	//Private to make sure it's not accessible from anywhere but the GetInstance function
+	InputHandler();
+
 	unsigned int GLFWToCEGUIKey(int glfwKey);
 	CEGUI::MouseButton GLFWToCEGUIButton(int glfwButton);
 
-	//Private constructor
-	InputSingleton();
-
 	//Stop the compiler from generating ways to copy the object
-	InputSingleton(InputSingleton const& copy);            // Not Implemented
-	InputSingleton& operator=(InputSingleton const& copy); // Not Implemented
+	InputHandler(InputHandler const& copy);            // Not Implemented
+	InputHandler& operator=(InputHandler const& copy); // Not Implemented
 
 private:
 	//Ptr to window we're supposed to get updates from
 	GLFWwindow* glfwWindow;
+
+	double timeSinceLastInput;
+
+	//This is how often we'll read for input
+	const double inputCooldown;
+	bool cursorLocked;
 
 	//So, cool fact: a std::vector<bool> is actually a condensed bitfield and it's not considered a standard stl container for this reason
 	//True means down, false means up
@@ -65,6 +72,5 @@ private:
 	std::pair<double, double> centerMousePos, mouseDelta;
 	std::pair<double, double> mouseWheelDelta;
 
-	bool mouseLocked;
 	double mouseSensitivity;
 };

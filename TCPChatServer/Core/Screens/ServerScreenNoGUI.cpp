@@ -1,7 +1,7 @@
 #include "ServerScreenNoGUI.h"
 
 #include "../../Network/TCPServer.h"
-#include "../Systems/ServerMessageHandler.h"
+#include "../Systems/ServerMessageParser.h"
 #include "../Systems/UserManager.h"
 #include "../../CEGUI/GameConsoleWindow.h"
 #include "../../CEGUI/ServerSidebarWindow.h"
@@ -50,7 +50,7 @@ bool ServerScreenNoGUI::Initialize()
 	userManager.reset(new UserManager());
 
 	//Create message handler
-	messageHandler = std::unique_ptr<ServerMessageHandler>(new ServerMessageHandler(userManager.get()));
+	messageHandler = std::unique_ptr<ServerMessageParser>(new ServerMessageParser(userManager.get()));
 
 	//Create TCP server
 	server = std::unique_ptr<TCPServer>(new TCPServer(userManager.get()));

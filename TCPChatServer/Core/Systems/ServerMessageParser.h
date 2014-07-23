@@ -10,11 +10,11 @@ class GameConsoleWindow;
 class Packet;
 class UserDataPacket;
 
-class ServerMessageHandler
+class ServerMessageParser
 {
 public:
-	ServerMessageHandler(UserManager* const usrMgr);
-	~ServerMessageHandler();
+	ServerMessageParser(UserManager* const usrMgr);
+	~ServerMessageParser();
 
 	void Update();
 

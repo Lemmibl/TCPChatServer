@@ -1,4 +1,4 @@
-#include "ClientMessageHandler.h"
+#include "ClientMessageParser.h"
 
 #include "../../CEGUI/GameConsoleWindow.h"
 
@@ -7,18 +7,18 @@
 #include "../../Network/PacketTypes/ColoredTextPacket.h"
 #include "../../Network/PacketTypes/UserDataPacket.h"
 
-ClientMessageHandler::ClientMessageHandler(GameConsoleWindow* const console)
+ClientMessageParser::ClientMessageParser(GameConsoleWindow* const console)
 : consoleWindow(console)
 {
 }
 
 
-ClientMessageHandler::~ClientMessageHandler()
+ClientMessageParser::~ClientMessageParser()
 {
 	consoleWindow = nullptr;
 }
 
-void ClientMessageHandler::Update()
+void ClientMessageParser::Update()
 {
 	for(unsigned int i = 0; i < inMessageQueue.size(); ++i)
 	{
@@ -26,7 +26,7 @@ void ClientMessageHandler::Update()
 	}
 }
 
-void ClientMessageHandler::SendTextPacket(CEGUI::String text, bool sendColor, CEGUI::argb_t color)
+void ClientMessageParser::SendTextPacket(CEGUI::String text, bool sendColor, CEGUI::argb_t color)
 {
 	size_t len = text.size();
 
@@ -51,7 +51,7 @@ void ClientMessageHandler::SendTextPacket(CEGUI::String text, bool sendColor, CE
 	}
 }
 
-void ClientMessageHandler::SendUserDataPacket(const ChatUserData& userData )
+void ClientMessageParser::SendUserDataPacket(const ChatUserData& userData )
 {
 	//Prepare our data packet
 	std::unique_ptr<UserDataPacket> outPacket(new UserDataPacket(userData.userName, userData.textColor, userData.id));
@@ -60,7 +60,7 @@ void ClientMessageHandler::SendUserDataPacket(const ChatUserData& userData )
 	outMessageQueue.push_back(std::move(outPacket));
 }
 
-void ClientMessageHandler::ReadStringData(std::unique_ptr<Packet> packet, bool containsColorData )
+void ClientMessageParser::ReadStringData(std::unique_ptr<Packet> packet, bool containsColorData )
 {
 	CEGUI::String packetString;
 	CEGUI::argb_t textColor;
@@ -82,13 +82,13 @@ void ClientMessageHandler::ReadStringData(std::unique_ptr<Packet> packet, bool c
 	}
 }
 
-void ClientMessageHandler::ReadDisconnectData(std::unique_ptr<Packet> packet)
+void ClientMessageParser::ReadDisconnectData(std::unique_ptr<Packet> packet)
 {
 	//TODO... Potentially.
 	//Thing is, it's not really used because we disconnect in other ways. But this might be for future stuff like... If you get kicked by the server or having a nice way of saying "The server is shutting down now."
 }
 
-void ClientMessageHandler::ReadUserData(std::unique_ptr<Packet> packet)
+void ClientMessageParser::ReadUserData(std::unique_ptr<Packet> packet)
 {
 	//TODO. It's supposed to be for loading in data about other players. So that we don't have to send stuff like user name + user textcolor every single time someone sends a message. might be necessary? might not be?
 }

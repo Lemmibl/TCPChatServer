@@ -1,4 +1,4 @@
-#include "ServerMessageHandler.h"
+#include "ServerMessageParser.h"
 
 #include "UserManager.h"
 #include "../../CEGUI/GameConsoleWindow.h"
@@ -10,7 +10,7 @@
 #include "../../Network/PacketTypes/UserDataPacket.h"
 
 	//TODO: Change local instances to normal ptrs and deconstruct them properly (= nullptr)
-ServerMessageHandler::ServerMessageHandler(UserManager* const usrMgr)
+ServerMessageParser::ServerMessageParser(UserManager* const usrMgr)
 :	userManager(usrMgr)
 {
 	serverColor = 0xFFFFFFFF;
@@ -29,12 +29,12 @@ ServerMessageHandler::ServerMessageHandler(UserManager* const usrMgr)
 	//}
 }
 
-ServerMessageHandler::~ServerMessageHandler()
+ServerMessageParser::~ServerMessageParser()
 {
 	userManager = nullptr;
 }
 
-void ServerMessageHandler::HandleLocalMessages(std::vector<CEGUI::String>& messages)
+void ServerMessageParser::HandleLocalMessages(std::vector<CEGUI::String>& messages)
 {
 	ChatUserData user = userManager->GetHostData();
 	
@@ -56,7 +56,7 @@ void ServerMessageHandler::HandleLocalMessages(std::vector<CEGUI::String>& messa
 }
 
 
-void ServerMessageHandler::Update()
+void ServerMessageParser::Update()
 {
 	//Clear out queues first before we add anything to it this update.
 	outMessages.clear();
@@ -82,7 +82,7 @@ void ServerMessageHandler::Update()
 //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ Read functions ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 
-void ServerMessageHandler::ReadStringData(std::unique_ptr<Packet> packet, bool containsColorData)
+void ServerMessageParser::ReadStringData(std::unique_ptr<Packet> packet, bool containsColorData)
 {
 	ChatUserData user;
 
@@ -127,7 +127,7 @@ void ServerMessageHandler::ReadStringData(std::unique_ptr<Packet> packet, bool c
 	}
 }
 
-void ServerMessageHandler::ReadUserData(std::unique_ptr<Packet> packet)
+void ServerMessageParser::ReadUserData(std::unique_ptr<Packet> packet)
 {
 	ChatUserData user;
 
@@ -161,7 +161,7 @@ void ServerMessageHandler::ReadUserData(std::unique_ptr<Packet> packet)
 //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ Send functions ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 
-void ServerMessageHandler::SendEventPacket(DataPacketType eventType)
+void ServerMessageParser::SendEventPacket(DataPacketType eventType)
 {
 	std::unique_ptr<Packet> packet(new Packet(eventType, 0, UserID(0)));
 
@@ -172,7 +172,7 @@ void ServerMessageHandler::SendEventPacket(DataPacketType eventType)
 
 //For our disconnect message, we just append the disconnected user's name. 
 //Each client will then locally have to append some " has disconnected from the server." string to the end of the name
-void ServerMessageHandler::SendDisconnectMessage(UserID client_id)
+void ServerMessageParser::SendDisconnectMessage(UserID client_id)
 {
 	ChatUserData user;
 
@@ -192,7 +192,7 @@ void ServerMessageHandler::SendDisconnectMessage(UserID client_id)
 }
 
 //Process message, then append it in packet form to outQueue
-void ServerMessageHandler::SendTextPacket(CEGUI::String text, UserID userID)
+void ServerMessageParser::SendTextPacket(CEGUI::String text, UserID userID)
 {
 	//temporary var to hold whatever we fetch from GetUser
 	ChatUserData user;
@@ -232,7 +232,7 @@ void ServerMessageHandler::SendTextPacket(CEGUI::String text, UserID userID)
 	}
 }
 
-void ServerMessageHandler::PrintText(CEGUI::String text, CEGUI::Colour textColor)
+void ServerMessageParser::PrintText(CEGUI::String text, CEGUI::Colour textColor)
 {
 	messageLog.push_back(std::move(TextMessage(text, textColor)));
 }

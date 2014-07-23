@@ -1,13 +1,15 @@
 #pragma once
 
+#ifdef _DEBUG
 #include <vld.h>
+#endif
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 
-#include "Core/CoreEngine.h"
+#include "Core/EngineCore.h"
 
 int main(int argc, char* argv[])
 {
@@ -18,7 +20,7 @@ int main(int argc, char* argv[])
 	FreeConsole();
 #endif
 
-	CoreEngine engine;
+	EngineCore engine;
 	bool result;
 
 	// Initialize and run the system object.

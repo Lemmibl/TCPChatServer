@@ -1,41 +1,55 @@
-#include "InputSingleton.h"
+#include "InputHandler.h"
 
-InputSingleton::InputSingleton()
+InputHandler::InputHandler()
 	:
 	mouseSensitivity(1.0),
-	glfwWindow(nullptr)
+	glfwWindow(nullptr),
+	inputCooldown(0.2)
 	//keyStates(512),
 	//mouseButtonStates(8)
 {
 	//keyEvents.reserve(100);
 
+	timeSinceLastInput = 0.0;
+	cursorLocked = true;
+
 	centerMousePos = std::make_pair<double, double>(500.0, 500.0);
 	mouseWheelDelta = std::make_pair<double, double>(0.0, 0.0);
 }
 
-///* Getters.	*/
-//bool InputSingleton::IsMouseButtonDown( int buttonCode )
-//{
-//	//if(buttonCode >= 0 && buttonCode < 8)
-//	//{
-//	//	return mouseButtonStates[buttonCode];
-//	//}
-//
-//	return false;
-//}
-//
-//bool InputSingleton::IsKeyDown(int keyCode)
-//{
-//	//if(keyCode >= 0 && keyCode < 512)
-//	//{
-//	//	return keyStates[keyCode];
-//	//}
-//
-//	return false;
-//}
+
+void InputHandler::Initialize(GLFWwindow* window)
+{
+	glfwWindow = window;
+
+	//Make sure we adapt to whatever our default state is
+	if(cursorLocked)
+	{
+		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	}
+	else
+	{
+		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+}
+
+void InputHandler::Update(double deltaTime)
+{
+	timeSinceLastInput += deltaTime;
+
+	//Toggle if RMB was pressed
+	if(timeSinceLastInput >= inputCooldown && glfwGetMouseButton(glfwWindow, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
+	{
+		timeSinceLastInput = 0.0;
+		cursorLocked = !cursorLocked;
+
+		LockMouse(cursorLocked);
+	}
+}
+
 
 /*	Setters.	*/
-void InputSingleton::SetMouseButtonState(int button, bool state )
+void InputHandler::SetMouseButtonState(int button, bool state )
 {
 
 	if(button >= 0 && button <= 8)
@@ -56,7 +70,7 @@ void InputSingleton::SetMouseButtonState(int button, bool state )
 	}
 }
 
-void InputSingleton::SetMouseScrollState( double xDelta, double yDelta )
+void InputHandler::SetMouseScrollState( double xDelta, double yDelta )
 {
 	if(yDelta > 0.0)
 	{
@@ -67,9 +81,9 @@ void InputSingleton::SetMouseScrollState( double xDelta, double yDelta )
 	mouseWheelDelta.second += yDelta;
 }
 
-void InputSingleton::SetMousePosition(double xDelta, double yDelta)
+void InputHandler::SetMousePosition(double xDelta, double yDelta)
 {
-	if(mouseLocked)
+	if(cursorLocked)
 	{	
 		//Calculate mouse change since last call
 		mouseDelta.first = (xDelta - centerMousePos.first) * mouseSensitivity;
@@ -88,7 +102,7 @@ void InputSingleton::SetMousePosition(double xDelta, double yDelta)
 	}
 }
 
-void InputSingleton::SetKeyState(int keycode, bool state)
+void InputHandler::SetKeyState(int keycode, bool state)
 {
 	if(keycode >= 0 && keycode < 512) // OutputDebugString(
 	{
@@ -108,7 +122,7 @@ void InputSingleton::SetKeyState(int keycode, bool state)
 	}
 }
 
-void InputSingleton::InjectChar(unsigned int keycode)
+void InputHandler::InjectChar(unsigned int keycode)
 {
 	CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(static_cast<CEGUI::utf32>(keycode));
 
@@ -116,7 +130,7 @@ void InputSingleton::InjectChar(unsigned int keycode)
 }
 
 
-unsigned int InputSingleton::GLFWToCEGUIKey(int glfwKey)
+unsigned int InputHandler::GLFWToCEGUIKey(int glfwKey)
 {
 	switch(glfwKey)
 	{
@@ -161,7 +175,7 @@ unsigned int InputSingleton::GLFWToCEGUIKey(int glfwKey)
 	}
 }
 
-CEGUI::MouseButton InputSingleton::GLFWToCEGUIButton(int glfwButton)
+CEGUI::MouseButton InputHandler::GLFWToCEGUIButton(int glfwButton)
 {
 	switch(glfwButton)
 	{
@@ -172,11 +186,11 @@ CEGUI::MouseButton InputSingleton::GLFWToCEGUIButton(int glfwButton)
 	}
 }
 
-void InputSingleton::LockMouse(bool val)
+void InputHandler::LockMouse(bool val)
 {
-	mouseLocked = val;
+	cursorLocked = val;
 
-	if(mouseLocked)
+	if(cursorLocked)
 	{
 		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	}
@@ -185,6 +199,28 @@ void InputSingleton::LockMouse(bool val)
 		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 }
+
+
+///* Getters.	*/
+//bool InputSingleton::IsMouseButtonDown( int buttonCode )
+//{
+//	//if(buttonCode >= 0 && buttonCode < 8)
+//	//{
+//	//	return mouseButtonStates[buttonCode];
+//	//}
+//
+//	return false;
+//}
+
+//bool InputSingleton::IsKeyDown(int keyCode)
+//{
+//	//if(keyCode >= 0 && keyCode < 512)
+//	//{
+//	//	return keyStates[keyCode];
+//	//}
+//
+//	return false;
+//}
 
 //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 //¤¤¤¤¤¤¤¤¤																															¤¤¤¤¤¤¤¤¤
@@ -204,7 +240,7 @@ Parameters
 [in]	mods	Bit field describing which modifier keys were held down.
 
 */
-void InputSingleton::GLFWMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+void InputHandler::GLFWMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
 	/*
 	#define 	GLFW_RELEASE   0
@@ -222,7 +258,7 @@ void InputSingleton::GLFWMouseButtonCallback(GLFWwindow* window, int button, int
 	
 	//bool buttonAction = (action == 0) ? false : true;
 
-	InputSingleton::GetInstance().SetMouseButtonState(button, ((action == 0) ? false : true));
+	InputHandler::GetInstance().SetMouseButtonState(button, ((action == 0) ? false : true));
 }
 
 
@@ -236,9 +272,9 @@ Parameters
 [in]	yDelta	The new y-coordinate, in screen coordinates, of the cursor.
 
 */
-void InputSingleton::GLFWMouseCursorPositionCallback(GLFWwindow* window, double xDelta, double yDelta)
+void InputHandler::GLFWMouseCursorPositionCallback(GLFWwindow* window, double xDelta, double yDelta)
 {
-	InputSingleton::GetInstance().SetMousePosition(xDelta, yDelta);
+	InputHandler::GetInstance().SetMousePosition(xDelta, yDelta);
 }
 
 
@@ -252,9 +288,9 @@ Parameters
 [in]	yDelta	The scroll offset along the y-axis.
 
 */
-void InputSingleton::GLFWMouseScrollCallback(GLFWwindow* window, double xDelta, double yDelta)
+void InputHandler::GLFWMouseScrollCallback(GLFWwindow* window, double xDelta, double yDelta)
 {
-	InputSingleton::GetInstance().SetMouseScrollState(xDelta, yDelta);
+	InputHandler::GetInstance().SetMouseScrollState(xDelta, yDelta);
 }
 
 
@@ -267,7 +303,7 @@ Parameters
 [in] description Text string to describe the error.
 [
 */
-void InputSingleton::GLFWErrorCallback(int error, const char* description)
+void InputHandler::GLFWErrorCallback(int error, const char* description)
 {
 	//C function because this is a C callback function
 	fputs(description, stderr);
@@ -286,7 +322,7 @@ Parameters
 [in]	mods	Bit field describing which modifier keys were held down.
 
 */
-void InputSingleton::GLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void InputHandler::GLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
@@ -298,7 +334,7 @@ void InputSingleton::GLFWKeyCallback(GLFWwindow* window, int key, int scancode, 
 	
 	//bool keyAction = (action == 0) ? false : true;
 
-	InputSingleton::GetInstance().SetKeyState(key, ((action == 0) ? false : true));
+	InputHandler::GetInstance().SetKeyState(key, ((action == 0) ? false : true));
 }
 
 
@@ -311,9 +347,9 @@ Parameters
 [in]	codepoint	The Unicode code point of the character.
 
 */
-void InputSingleton::GLFWCharCallback(GLFWwindow* window, unsigned int codePoint)
+void InputHandler::GLFWCharCallback(GLFWwindow* window, unsigned int codePoint)
 {
-	InputSingleton::GetInstance().InjectChar(codePoint);
+	InputHandler::GetInstance().InjectChar(codePoint);
 }
 
 /*
@@ -324,7 +360,7 @@ Parameters
 [in]	width	The new width of the window.
 [in]	height	The new height of the window.
 */
-void InputSingleton::GLFWWindowResizeCallback( GLFWwindow* window, int width, int height )
+void InputHandler::GLFWWindowResizeCallback( GLFWwindow* window, int width, int height )
 {
 	CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Sizef(static_cast<float>(width), static_cast<float>(height)));
 }

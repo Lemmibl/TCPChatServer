@@ -5,11 +5,11 @@
 class Packet;
 class GameConsoleWindow;
 
-class ClientMessageHandler
+class ClientMessageParser
 {
 public:
-	ClientMessageHandler(GameConsoleWindow* const console);
-	~ClientMessageHandler();
+	ClientMessageParser(GameConsoleWindow* const console);
+	~ClientMessageParser();
 
 	//Returns the queue that is processed in MessageHandler's update function.
 	std::vector<std::unique_ptr<Packet>>& GetInMessageQueue() { return inMessageQueue; }

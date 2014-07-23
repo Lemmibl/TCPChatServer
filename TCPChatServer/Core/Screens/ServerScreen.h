@@ -7,7 +7,7 @@
 
 class TCPServer;
 class UserManager;
-class ServerMessageHandler;
+class ServerMessageParser;
 class GameConsoleWindow;
 class ServerSidebarWindow;
 
@@ -37,7 +37,7 @@ private:
 	ServerSettings serverSettings;
 	std::unique_ptr<UserManager> userManager;
 	std::unique_ptr<TCPServer> server;
-	std::unique_ptr<ServerMessageHandler> messageHandler;
+	std::unique_ptr<ServerMessageParser> messageHandler;
 	std::unique_ptr<ServerSidebarWindow> sidebarWindow;
 	std::unique_ptr<GameConsoleWindow> consoleWindow;
 	CEGUI::Window* rootWindow;

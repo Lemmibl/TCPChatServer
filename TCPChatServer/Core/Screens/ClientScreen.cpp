@@ -2,7 +2,7 @@
 
 #include "GLFW/glfw3.h"
 
-#include "../Systems/ClientMessageHandler.h"
+#include "../Systems/ClientMessageParser.h"
 #include "../../Network/TCPClient.h"
 #include "../../CEGUI/GameConsoleWindow.h"
 #include "../../CEGUI/ClientSidebarWindow.h"
@@ -86,7 +86,7 @@ bool ClientScreen::Initialize()
 	InitializeGUI();
 
 	//Create the system that will manage all the data we receive/send through the network
-	messageHandler.reset(new ClientMessageHandler(consoleWindow.get()));
+	messageParser.reset(new ClientMessageParser(consoleWindow.get()));
 
 	//Create our client but don't connect or start anything yet
 	chatClient.reset(new TCPClient(consoleWindow.get()));
@@ -115,7 +115,7 @@ bool ClientScreen::Update( double deltaTime )
 	if(connectionActive)
 	{
 		//Receive data from the server. If function returns false, it means something went wrong or that we were disconnected from the host (on purpose).
-		connectionActive = chatClient->ReceiveData(messageHandler->GetInMessageQueue());
+		connectionActive = chatClient->ReceiveData(messageParser->GetInMessageQueue());
 
 		//Get any messages we've written to the console window
 		auto& localMessages = consoleWindow->GetNewMessages();
@@ -123,14 +123,14 @@ bool ClientScreen::Update( double deltaTime )
 		//Process all local messages
 		for(unsigned int i = 0; i < localMessages.size(); ++i)
 		{
-			messageHandler->SendTextPacket(localMessages[i], true, sidebarWindow->GetUserColor());
+			messageParser->SendTextPacket(localMessages[i], true, sidebarWindow->GetUserColor());
 		}
 
 		//Process external messages from server through inMessageQueue
-		messageHandler->Update();
+		messageParser->Update();
 
 		//Send any data we've queued up
-		connectionActive = chatClient->SendDataToServer(messageHandler->GetOutMessageQueue());
+		connectionActive = chatClient->SendDataToServer(messageParser->GetOutMessageQueue());
 	}
 
 	return true;
@@ -170,7 +170,7 @@ void ClientScreen::UpdateConnectionStatus(bool active)
 			userData.userName = sidebarWindow->GetUserName();
 			userData.textColor = sidebarWindow->GetUserColor();
 
-			messageHandler->SendUserDataPacket(userData);
+			messageParser->SendUserDataPacket(userData);
 		}
 		else
 		{

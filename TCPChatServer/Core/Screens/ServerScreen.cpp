@@ -1,7 +1,7 @@
 #include "ServerScreen.h"
 
 #include "../../Network/TCPServer.h"
-#include "../Systems/ServerMessageHandler.h"
+#include "../Systems/ServerMessageParser.h"
 #include "../Systems/UserManager.h"
 #include "../../CEGUI/GameConsoleWindow.h"
 #include "../../CEGUI/ServerSidebarWindow.h"
@@ -10,9 +10,6 @@ ServerScreen::ServerScreen()
 	: ScreenBase(),
 	SettingsDependent()
 {
-	//Load server settings amongst other things
-	InitializeSettings(this);
-
 	serverActive = false;
 }
 
@@ -61,6 +58,9 @@ bool ServerScreen::Enter()
 
 bool ServerScreen::Initialize()
 {
+	//Load settings and bind event callback function in case we re-load settings during runtime.
+	InitializeSettings(this);
+
 	bool result;
 
 	serverActive = false;
@@ -74,7 +74,7 @@ bool ServerScreen::Initialize()
 	}
 
 	//Create message handler
-	messageHandler = std::unique_ptr<ServerMessageHandler>(new ServerMessageHandler(userManager.get()));
+	messageHandler = std::unique_ptr<ServerMessageParser>(new ServerMessageParser(userManager.get()));
 
 	//Create TCP server
 	server = std::unique_ptr<TCPServer>(new TCPServer(userManager.get()));

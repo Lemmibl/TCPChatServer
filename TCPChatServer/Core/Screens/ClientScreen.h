@@ -7,7 +7,7 @@
 
 class TCPClient;
 class GameConsoleWindow;
-class ClientMessageHandler;
+class ClientMessageParser;
 class ClientSidebarWindow;
 struct GLFWwindow;
 
@@ -38,7 +38,7 @@ private:
 	std::unique_ptr<TCPClient> chatClient;
 	std::unique_ptr<GameConsoleWindow> consoleWindow;
 	std::unique_ptr<ClientSidebarWindow> sidebarWindow;
-	std::unique_ptr<ClientMessageHandler> messageHandler;
+	std::unique_ptr<ClientMessageParser> messageParser;
 
 	//Don't need to call update on things when we don't have a connection open :)
 	bool connectionActive;

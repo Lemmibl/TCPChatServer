@@ -1,38 +1,41 @@
-#include "CoreEngine.h"
+#include "EngineCore.h"
 
 #include "StateMachine.h"
 #include "../CEGUI/CEGUIWrapper.h"
-#include "Systems/InputSingleton.h"
-#include <ctime>
+#include "Systems/InputHandler.h"
+#include "../Settings/SettingsManager.h"
 
 #include <GLFW/glfw3.h>
 
 //Initializing width and height to some values. These will actually be filled later in LoadSettings.
-CoreEngine::CoreEngine()
-	: screenWidth(1024), screenHeight(768), inputCooldown(0.2)
+EngineCore::EngineCore()
+	: screenWidth(1024), screenHeight(768)
 {
-	cursorLocked = false;
 	deltaTime = 0.0;
 	glfwTime = 0.0;
-
-	//Arbitrary value to make sure we poll for input immediately
-	timeSinceLastInput = 1000.0;
 }
 
-CoreEngine::~CoreEngine()
+EngineCore::~EngineCore()
 {
 	Cleanup();
+	inputHandler = nullptr;
+	glfwWindow = nullptr;
 }
 
-void CoreEngine::Cleanup()
+void EngineCore::Cleanup()
 {
 	glfwDestroyWindow(glfwWindow);
-
 	glfwTerminate();
 }
 
-bool CoreEngine::Initialize()
+bool EngineCore::Initialize()
 {
+	//Load settings file before creating anything that will use the settings.
+	SettingsManager::GetInstance().LoadSettings();
+
+	//Save a ptr to handler to save a few instructions on all those ::GetInstance() calls
+	inputHandler = &InputHandler::GetInstance(); 
+
 	if(!InitializeGUI())
 	{
 		return false;
@@ -48,10 +51,10 @@ bool CoreEngine::Initialize()
 	return true;
 }
 
-bool CoreEngine::InitializeGUI()
+bool EngineCore::InitializeGUI()
 {
 	//Bind error callback function first of all, so that it gets called if anything goes wrong
-	glfwSetErrorCallback(InputSingleton::GLFWErrorCallback);
+	glfwSetErrorCallback(InputHandler::GLFWErrorCallback);
 
 	/* Initialize the library */
 	if(!glfwInit())
@@ -71,14 +74,15 @@ bool CoreEngine::InitializeGUI()
 	glfwMakeContextCurrent(glfwWindow);
 
 	//Bind all the callback functions that GLFW calls upon events
-	glfwSetKeyCallback(glfwWindow, InputSingleton::GLFWKeyCallback);
-	glfwSetCharCallback(glfwWindow, InputSingleton::GLFWCharCallback);
-	glfwSetMouseButtonCallback(glfwWindow, InputSingleton::GLFWMouseButtonCallback);
-	glfwSetScrollCallback(glfwWindow, InputSingleton::GLFWMouseScrollCallback);
-	glfwSetCursorPosCallback(glfwWindow, InputSingleton::GLFWMouseCursorPositionCallback);
-	glfwSetWindowSizeCallback(glfwWindow, InputSingleton::GLFWWindowResizeCallback);
+	glfwSetKeyCallback(glfwWindow, InputHandler::GLFWKeyCallback);
+	glfwSetCharCallback(glfwWindow, InputHandler::GLFWCharCallback);
+	glfwSetMouseButtonCallback(glfwWindow, InputHandler::GLFWMouseButtonCallback);
+	glfwSetScrollCallback(glfwWindow, InputHandler::GLFWMouseScrollCallback);
+	glfwSetCursorPosCallback(glfwWindow, InputHandler::GLFWMouseCursorPositionCallback);
+	glfwSetWindowSizeCallback(glfwWindow, InputHandler::GLFWWindowResizeCallback);
 
-	InputSingleton::GetInstance().SetGLFWWindow(glfwWindow);
+	//Make sure inputhandler has a valid ptr to the current window.
+	inputHandler->Initialize(glfwWindow);
 
 	//Create CEGUI wrapper object
 	ceguiWrapper = std::unique_ptr<CEGUIWrapper>(new CEGUIWrapper());
@@ -92,7 +96,7 @@ bool CoreEngine::InitializeGUI()
 	return true;
 }
 
-void CoreEngine::MainLoop()
+void EngineCore::MainLoop()
 {
 	for(;;)
 	{
@@ -105,21 +109,21 @@ void CoreEngine::MainLoop()
 	}
 }
 
-bool CoreEngine::Update()
+bool EngineCore::Update()
 {
+	glfwTime = glfwGetTime();
+	deltaTime = glfwTime - deltaTime;
+
+	inputHandler->Update(deltaTime);
+
+	//Update all CEGUI elements. Inject delta time.
+	ceguiWrapper->Update(deltaTime);
+
 	//Update currently active screen/state	
 	if(!stateMachine->Update())
 	{
 		return false;
 	}
-
-	glfwTime = glfwGetTime();
-	deltaTime = glfwTime - deltaTime;
-
-	UpdateInput();
-
-	//Update all CEGUI elements. Inject delta time.
-	ceguiWrapper->Update(deltaTime);
 
 	//See if we should shut down application
 	if(glfwWindowShouldClose(glfwWindow))
@@ -133,21 +137,8 @@ bool CoreEngine::Update()
 	return true;
 }
 
-void CoreEngine::UpdateInput()
-{
-	timeSinceLastInput += deltaTime;
 
-	//Toggle if RMB was pressed
-	if(timeSinceLastInput >= inputCooldown && glfwGetMouseButton(glfwWindow, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
-	{
-		timeSinceLastInput = 0.0;
-		cursorLocked = !cursorLocked;
-
-		InputSingleton::GetInstance().LockMouse(cursorLocked);
-	}
-}
-
-void CoreEngine::Render()
+void EngineCore::Render()
 {
 	//Render all GUI stuff
 	ceguiWrapper->Render();
