@@ -281,6 +281,8 @@ bool TCPServer::StopHosting()
 	//If socket is currently active...
 	if(listenSocket.GetSocket() != INVALID_SOCKET)
 	{	
+		shutdown(listenSocket.GetSocket(), SD_SEND);
+
 		listenSocket.CloseSocket();
 
 		return true;

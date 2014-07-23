@@ -31,7 +31,7 @@ void UserManager::Update()
 	}
 }
 
-UserID UserManager::AddUser(const SocketWrapper userSocket, const CEGUI::String userName, const unsigned int userColor, const unsigned int ip)
+UserID UserManager::AddUser(const SocketWrapper& userSocket, const CEGUI::String userName, const unsigned int userColor, const unsigned int ip)
 {
 	//Every time we get a new user, we use this value as that user's ID. Then increment by one. Should be fine as long as we don't get more than 4294967295 users.
 	static UserID UserIDCounter = 0;

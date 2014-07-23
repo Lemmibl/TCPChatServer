@@ -4,7 +4,9 @@ InputHandler::InputHandler()
 	:
 	mouseSensitivity(1.0),
 	glfwWindow(nullptr),
-	inputCooldown(0.2)
+	inputCooldown(0.2),
+	centerMousePos(std::make_pair<double, double>(500.0, 500.0)),
+	mouseWheelDelta(std::make_pair<double, double>(0.0, 0.0))
 	//keyStates(512),
 	//mouseButtonStates(8)
 {
@@ -12,9 +14,6 @@ InputHandler::InputHandler()
 
 	timeSinceLastInput = 0.0;
 	cursorLocked = true;
-
-	centerMousePos = std::make_pair<double, double>(500.0, 500.0);
-	mouseWheelDelta = std::make_pair<double, double>(0.0, 0.0);
 }
 
 

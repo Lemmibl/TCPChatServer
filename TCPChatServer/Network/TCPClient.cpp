@@ -168,10 +168,11 @@ bool TCPClient::SendDataToServer(std::vector<std::unique_ptr<Packet>>& inData)
 
 void TCPClient::Disconnect()
 {
-	int result = 1;
+	//int result = 1;
 
 	// shutdown the connection since no more data will be sent or read
-	result = shutdown(connectionSocket.GetSocket(), SD_SEND);
+	//result = 
+	shutdown(connectionSocket.GetSocket(), SD_SEND);
 
 	// cleanup
 	connectionSocket.CloseSocket();

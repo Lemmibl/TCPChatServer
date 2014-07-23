@@ -17,6 +17,8 @@ CEGUIWrapper::~CEGUIWrapper()
 
 bool CEGUIWrapper::Initialize()
 {
+	const CEGUI::String filepath = "../TCPChatServer/";
+
 	//// http://static.cegui.org.uk/docs/current/rendering_tutorial.html
 
 	// Bootstrap CEGUI::System with an OpenGL3Renderer object that uses the
@@ -32,12 +34,12 @@ bool CEGUIWrapper::Initialize()
 
 	// initialise the required dirs for the DefaultResourceProvider
 	CEGUI::DefaultResourceProvider* rp = static_cast<CEGUI::DefaultResourceProvider*>(CEGUI::System::getSingleton().getResourceProvider());
-	rp->setResourceGroupDirectory("schemes", "CEGUI/datafiles/schemes/");
-	rp->setResourceGroupDirectory("imagesets", "CEGUI/datafiles/imagesets/");
-	rp->setResourceGroupDirectory("fonts", "CEGUI/datafiles/fonts/");
-	rp->setResourceGroupDirectory("layouts", "CEGUI/datafiles/layouts/");
-	rp->setResourceGroupDirectory("looknfeels", "CEGUI/datafiles/looknfeel/");
-	rp->setResourceGroupDirectory("lua_scripts", "CEGUI/datafiles/lua_scripts/");
+	rp->setResourceGroupDirectory("schemes", filepath+"CEGUI/datafiles/schemes/");
+	rp->setResourceGroupDirectory("imagesets", filepath+"CEGUI/datafiles/imagesets/");
+	rp->setResourceGroupDirectory("fonts", filepath+"CEGUI/datafiles/fonts/");
+	rp->setResourceGroupDirectory("layouts", filepath+"CEGUI/datafiles/layouts/");
+	rp->setResourceGroupDirectory("looknfeels", filepath+"CEGUI/datafiles/looknfeel/");
+	rp->setResourceGroupDirectory("lua_scripts", filepath+"CEGUI/datafiles/lua_scripts/");
 
 	// set the default resource groups to be used
 	CEGUI::ImageManager::setImagesetDefaultResourceGroup("imagesets");

@@ -23,7 +23,7 @@ using namespace Schladetsch::Events;
 using namespace libconfig;
 
 //K, so everything else in this project is a CEGUI string, but this string won't at all be used by the gui library, it's just going to be sent into the libconfig library. Hence std::string.
-static const std::string filepath = "Settings/settings.cfg";
+static const std::string filepath = "../TCPChatServer/Settings/settings.cfg";
 
 class SettingsManager
 {
