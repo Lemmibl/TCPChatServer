@@ -33,3 +33,5 @@
 *.opensdf
 *.res
 *.unsuccessfulbuild
+*.log
+*.suo

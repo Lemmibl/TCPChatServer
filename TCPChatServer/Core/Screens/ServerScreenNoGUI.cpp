@@ -37,7 +37,10 @@ bool ServerScreenNoGUI::Enter()
 		isInitialized = true;
 	}
 
-	server->StartHosting();
+	if(!server->StartHosting())
+	{
+		return false;
+	}
 
 	return true;
 }

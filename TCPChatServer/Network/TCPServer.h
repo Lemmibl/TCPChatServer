@@ -70,7 +70,7 @@ private:
 	//Currently not used, but might contain stuff like server password, MOTD and that sort of stuff.
 	ServerSettings settingsObject;
 
-	std::string defaultPort;
+	const char* defaultPort;
 	unsigned int defaultBufferLength;
 	CEGUI::Colour serverColour;
 

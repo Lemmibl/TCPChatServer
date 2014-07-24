@@ -24,17 +24,11 @@ TCPServer::TCPServer(UserManager* const usrMgr)
 TCPServer::~TCPServer()
 {
 	userManager = nullptr;
-	Shutdown();
 }
 
 bool TCPServer::Initialize(const ServerSettings settings)
 {
 	settingsObject = settings;
-
-	if(!OpenWSA())
-	{
-		return false;
-	}
 
 	return true;
 }
@@ -42,8 +36,6 @@ bool TCPServer::Initialize(const ServerSettings settings)
 void TCPServer::Shutdown()
 {
 	StopHosting();
-
-	CloseWSA();
 }
 
 bool TCPServer::AddClient()
@@ -206,6 +198,11 @@ bool TCPServer::DistributeData(std::vector<std::unique_ptr<Packet>>& inData)
 
 bool TCPServer::StartHosting()
 {
+	if(!OpenWSA())
+	{
+		return false;
+	}
+
 	// address info for the server to listen to
 	struct addrinfo *result = NULL;
 	struct addrinfo hints;
@@ -214,12 +211,11 @@ bool TCPServer::StartHosting()
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;    // TCP connection!!!
+	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE;
 
 	// Resolve the server address and port
-	iResult = getaddrinfo(NULL, defaultPort.data(), &hints, &result);
-
+	iResult = getaddrinfo(NULL, defaultPort, &hints, &result);
 	if(iResult != 0) 
 	{
 		PrintErrorMessage("getaddrinfo failed with error: " + iResult);
@@ -227,10 +223,9 @@ bool TCPServer::StartHosting()
 		return false;
 	}
 
-	// Create a SOCKET for connecting to server
-	listenSocket = SocketWrapper(socket(result->ai_family, result->ai_socktype, result->ai_protocol));
+	sock_t tempSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 
-	if (listenSocket.GetSocket() == INVALID_SOCKET) 
+	if (tempSocket == INVALID_SOCKET) 
 	{
 		PrintErrorMessage("socket failed with error: " + WSAGetLastError());
 		freeaddrinfo(result);
@@ -240,17 +235,17 @@ bool TCPServer::StartHosting()
 
 	// Set the mode of the socket to be nonblocking
 	u_long iMode = 1;
-	iResult = ioctlsocket(listenSocket.GetSocket(), FIONBIO, &iMode);
-
-	if (iResult == SOCKET_ERROR) 
+	iResult = ioctlsocket(tempSocket, FIONBIO, &iMode);
+	if (iResult != NO_ERROR) 
 	{
-		PrintErrorMessage("ioctlsocket failed with error: " + WSAGetLastError());
+		iResult = WSAGetLastError();
+		PrintErrorMessage("ioctlsocket failed with error: " + iResult);
 		Shutdown();
 		return false;
 	}
 
 	// Setup the TCP listening socket
-	iResult = bind( listenSocket.GetSocket(), result->ai_addr, (int)result->ai_addrlen);
+	iResult = bind(tempSocket, result->ai_addr, (int)result->ai_addrlen);
 
 	if (iResult == SOCKET_ERROR) 
 	{
@@ -264,7 +259,7 @@ bool TCPServer::StartHosting()
 	freeaddrinfo(result);
 
 	// start listening for new clients attempting to connect
-	iResult = listen(listenSocket.GetSocket(), SOMAXCONN);
+	iResult = listen(tempSocket, SOMAXCONN);
 
 	if (iResult == SOCKET_ERROR) 
 	{
@@ -273,11 +268,15 @@ bool TCPServer::StartHosting()
 		return false;
 	}
 
+	listenSocket = SocketWrapper(tempSocket);
+
 	return true;
 }
 
 bool TCPServer::StopHosting()
 {
+	CloseWSA();
+
 	//If socket is currently active...
 	if(listenSocket.GetSocket() != INVALID_SOCKET)
 	{	
@@ -302,7 +301,7 @@ bool TCPServer::OpenWSA()
 
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-	if(iResult < 0) 
+	if(iResult != NO_ERROR) 
 	{
 		PrintErrorMessage("WSAStartup failed. Error code: " + iResult);
 		return false;

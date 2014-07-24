@@ -5,8 +5,9 @@
 #include "Screens/ScreenBase.h"
 #include "Screens/MainMenuScreen.h"
 #include "Screens/OptionsScreen.h"
-#include "Screens/ServerScreen.h"
 #include "Screens/ClientScreen.h"
+#include "Screens/ServerScreen.h"
+#include "Screens/ServerScreenNoGUI.h"
 
 #include <GLFW/glfw3.h>
 
@@ -23,6 +24,14 @@ StateMachine::~StateMachine()
 
 bool StateMachine::Initialize()
 {
+	serverNoGUI.reset(new ServerScreenNoGUI());
+
+	//Initializes and starts server
+	if(!serverNoGUI->Enter())
+	{
+		return false;
+	}
+
 	std::unique_ptr<MainMenuScreen> mainMenu(new MainMenuScreen());
 	//std::shared_ptr<OptionsScreen> optionsMenu = std::make_shared<OptionsScreen>();
 	std::unique_ptr<ServerScreen> serverMenu(new ServerScreen());
@@ -47,8 +56,15 @@ bool StateMachine::Update()
 		return false;
 	}
 
+	double glfwTime = glfwGetTime();
+
+	if(!serverNoGUI->Update(glfwTime))
+	{
+		return false;
+	}
+
 	//I've also made sure to have the option to let the individual states flag that the program should shut down
-	if(!currentState->Update(glfwGetTime()))
+	if(!currentState->Update(glfwTime))
 	{
 		return false;
 	}
