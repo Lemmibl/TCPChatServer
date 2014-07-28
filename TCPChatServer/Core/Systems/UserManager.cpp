@@ -36,19 +36,21 @@ UserID UserManager::AddUser(sock_t userSocket, const CEGUI::String userName, con
 	//Increment it before assigning. I want the first user to start at 1, not 0.
 	++UserIDCounter;
 
-	std::pair<UserID, ChatUserData> user;
+	std::pair<UserID, std::unique_ptr<ChatUserData>> user;
 
 	//Assign an ID to this user. Implicit UserID <-> uint works just fine, but I want to be clear here.
 	user.first = UserIDCounter;
 
+	user.second.reset(new ChatUserData);
+
 	//Populate this shit.
-	user.second.id = UserIDCounter; //Even if we use the userID as a key, it's still useful to contain the ID within the actual user data. For example, when we read packets from sockets in TCPServer.
-	user.second.clientSocket.SetNewSocket(userSocket);
-	user.second.userName = userName;
-	user.second.textColor = userColor;
+	user.second->id = UserIDCounter; //Even if we use the userID as a key, it's still useful to contain the ID within the actual user data. For example, when we read packets from sockets in TCPServer.
+	user.second->clientSocket.SetNewSocket(userSocket);
+	user.second->userName = userName;
+	user.second->textColor = userColor;
 
 	//Assume that per default, the permissions will be that of a Normal user
-	user.second.permissions = Normal;
+	user.second->permissions = Normal;
 
 	userDatabase.insert(std::move(user));
 
@@ -62,7 +64,7 @@ void UserManager::RemoveUser(const UserID id)
 	if(user != userDatabase.end())
 	{	
 		//Save player's name
-		disconnectedUsers.push_back(user->second.userName);
+		disconnectedUsers.push_back(user->second->userName);
 
 		//Remove the user from our user "database"
 		cleanUpList.push_back(id);
@@ -80,24 +82,24 @@ bool UserManager::DoesUserExist(const UserID id )
 	return false;
 }
 
-bool UserManager::GetUser(const UserID id, ChatUserData* outUserData )
+bool UserManager::GetUser( UserID id, ChatUserData** outUserPtr)
 {
 	//If it's host, break early.
 	if(id == 0)
 	{
-		*outUserData = hostData;
+		*outUserPtr = &hostData;
 		return true;
 	}
 
 
 	//Look for a user with this ID.
-	auto& it = userDatabase.find(id);
+	std::unordered_map<UserID, std::unique_ptr<ChatUserData>>::iterator it = userDatabase.find(id);
 
 	//If find() actually found something
 	if(it != userDatabase.end())
 	{
 		//Set outUserData to point to this object.
-		outUserData = &it->second;
+		*outUserPtr = it->second.get();
 
 		//Return that we've succeeded.
 		return true;
@@ -107,7 +109,7 @@ bool UserManager::GetUser(const UserID id, ChatUserData* outUserData )
 	return false;
 }
 
-std::pair<std::unordered_map<UserID, ChatUserData>::iterator, std::unordered_map<UserID, ChatUserData>::iterator> UserManager::GetAllUsers()
+std::pair<std::unordered_map<UserID, std::unique_ptr<ChatUserData>>::iterator, std::unordered_map<UserID, std::unique_ptr<ChatUserData>>::iterator> UserManager::GetAllUsers()
 {
 	return std::make_pair(userDatabase.begin(), userDatabase.end());
 }

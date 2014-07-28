@@ -82,10 +82,10 @@ bool ServerScreenNoGUI::Update(double deltaTime)
 
 	auto& msgLog = messageHandler->GetMessageLog();
 
-	for(unsigned int i = 0; i < msgLog.size(); ++i)
-	{
-		console->PrintText(msgLog[i].text, msgLog[i].textColor);
-	}
+	//for(unsigned int i = 0; i < msgLog.size(); ++i)
+	//{
+	//	console->PrintText(msgLog[i].text, msgLog[i].textColor);
+	//}
 
 	msgLog.clear();
 

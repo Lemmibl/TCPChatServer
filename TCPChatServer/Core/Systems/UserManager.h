@@ -28,17 +28,17 @@ public:
 	bool DoesUserExist(const UserID id);
 	
 	//If the UserID is valid, it fills up the outUserInfo struct and returns a true. If it returns false, it means we didn't find any user with that UserID.
-	bool GetUser(const UserID id, ChatUserData* outUserData);
+	bool GetUser(UserID id, ChatUserData** outUserPtr);
 
 	//Returns a pair of iterators. First slot is begin() and second slot is end()
-	std::pair<std::unordered_map<UserID, ChatUserData>::iterator, std::unordered_map<UserID, ChatUserData>::iterator> GetAllUsers();
+	std::pair<std::unordered_map<UserID, std::unique_ptr<ChatUserData>>::iterator, std::unordered_map<UserID, std::unique_ptr<ChatUserData>>::iterator> GetAllUsers();
 
 	std::list<CEGUI::String>& GetDisconnectedUserNames();
 	std::list<UserID>& GetDisconnectedUserIDs();
 
 private:
 	ChatUserData hostData;
-	std::unordered_map<UserID, ChatUserData> userDatabase;
+	std::unordered_map<UserID, std::unique_ptr<ChatUserData>> userDatabase;
 
 	//Okay, so when RemoveUser is called, I don't actually remove the user immediately. That would screw up all iterators and usage for all other classes.
 	//Instead I gather them all up and do a cleanup during update, at the end of the main loop.

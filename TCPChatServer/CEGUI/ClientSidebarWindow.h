@@ -29,7 +29,7 @@ public:
 	bool EventCallback_ShutdownButtonPressed(const CEGUI::EventArgs &e);
 
 	const std::string GetTargetIP()	{ return std::string(targetIP.c_str()); } //std::string(targetIP.c_str())
-	const CEGUI::String GetUserName()	{ return userName; }
+	const CEGUI::String GetClientUserName()	{ return userName; }
 	const CEGUI::argb_t  GetUserColor() { return userColor.getARGB(); }
 
 private:

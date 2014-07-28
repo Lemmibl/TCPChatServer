@@ -176,7 +176,7 @@ void ClientScreen::UpdateConnectionStatus(bool active)
 
 		if(chatClient->Connect(sidebarWindow->GetTargetIP()))
 		{
-			userData.userName = sidebarWindow->GetUserName();
+			userData.userName = sidebarWindow->GetClientUserName();
 			userData.textColor = sidebarWindow->GetUserColor();
 
 			messageParser->SendUserDataPacket(userData);

@@ -178,7 +178,7 @@ bool TCPServer::ReceiveData(std::vector<std::unique_ptr<Packet>>& outData)
 		//memset(network_data, 0, MAX_PACKET_SIZE); //Let's try not nulling it.
 
 		//See if this user has sent any data
-		int packetSize = it->second.clientSocket.ReceiveData(network_data, MAX_PACKET_SIZE);
+		int packetSize = it->second->clientSocket.ReceiveData(network_data, MAX_PACKET_SIZE);
 
 		//Sanity check
 		if(packetSize > MAX_PACKET_SIZE)
@@ -189,7 +189,7 @@ bool TCPServer::ReceiveData(std::vector<std::unique_ptr<Packet>>& outData)
 		//If they have, we handle it
 		if(packetSize > 0)
 		{
-			ExtractClientData(it->second.id, outData, packetSize);
+			ExtractClientData(it->second->id, outData, packetSize);
 		}
 	}
 
@@ -256,7 +256,7 @@ bool TCPServer::DistributeData(std::vector<std::unique_ptr<Packet>>& inData)
 		for(unsigned int i = 0; i < inData.size(); ++i)
 		{
 			//Send data header
-			iSendResult = sessionIter->second.clientSocket.SendData(inData[i]->GetHeader()->dataArray, inData[i]->GetHeader()->SizeOfStruct());
+			iSendResult = sessionIter->second->clientSocket.SendData(inData[i]->GetHeader()->dataArray, inData[i]->GetHeader()->SizeOfStruct());
 
 			if(iSendResult == SOCKET_ERROR) 
 			{
@@ -278,7 +278,7 @@ bool TCPServer::DistributeData(std::vector<std::unique_ptr<Packet>>& inData)
 			if(dataSize > 0)
 			{
 				//Send data body
-				iSendResult = sessionIter->second.clientSocket.SendData(inData[i]->GetData().data(), dataSize);
+				iSendResult = sessionIter->second->clientSocket.SendData(inData[i]->GetData().data(), dataSize);
 
 				if(iSendResult == SOCKET_ERROR) 
 				{

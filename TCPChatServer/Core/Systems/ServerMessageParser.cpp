@@ -85,13 +85,13 @@ void ServerMessageParser::Update()
 
 void ServerMessageParser::ReadStringData(std::unique_ptr<Packet> packet, bool containsColorData)
 {
-	ChatUserData user;
+	ChatUserData* user;
 	const UserID sender = packet->GetSenderID();
 
 	if(userManager->GetUser(sender, &user))
 	{
 		CEGUI::String packetString;
-		CEGUI::argb_t textColor = 0xFFFFFFFF;
+		CEGUI::argb_t textColor;
 
 		if(containsColorData)
 		{
@@ -103,20 +103,20 @@ void ServerMessageParser::ReadStringData(std::unique_ptr<Packet> packet, bool co
 			packetString = static_cast<TextPacket*>(packet.get())->Deserialize();
 
 			//If packet doesn't contain color data, we just fetch it from the stored userColor from usermanager
-			//textColor = user.textColor;
+			textColor = user->textColor;
 		}
 
 		//We know that this packet is text, and that the body's data vector is going to contain the text in char format. So we simply initialize a string with this data.
 		//We also append user's username before the message.
-		CEGUI::String text(user.userName + ": " + packetString);
+		CEGUI::String text(user->userName + ": " + packetString);
 
 		//Print text locally. Move by value? Idk if best way to solve this. Or if there's even a problem to begin with.
-		PrintText(text, textColor);
+		PrintText(text, CEGUI::Colour(textColor));
 
 		//So now that we're done with the data, create a new packet and send it out to the clients.
 		if(containsColorData)
 		{
-			outMessages.push_back(std::unique_ptr<ColoredTextPacket>(new ColoredTextPacket(text, user.textColor.getARGB(), sender)));
+			outMessages.push_back(std::unique_ptr<ColoredTextPacket>(new ColoredTextPacket(text, textColor, sender)));
 		}
 		else
 		{
@@ -128,29 +128,30 @@ void ServerMessageParser::ReadStringData(std::unique_ptr<Packet> packet, bool co
 
 void ServerMessageParser::ReadUserData(std::unique_ptr<Packet> packet)
 {
-	ChatUserData user;
+	ChatUserData* user = nullptr;
 
 	//If this goes through, variable: <userPtr> is pointing to an existing user that exists in userManager
 	if(userManager->GetUser(packet->GetSenderID(), &user))
 	{
 		//Temporary variable to hold the data that we'll get when deserializing the packet
 		CEGUI::argb_t userTextColor;
+		CEGUI::String userName;
 
 		//Extract data into local variables
-		static_cast<UserDataPacket*>(packet.get())->Deserialize(&user.userName, &userTextColor);
+		static_cast<UserDataPacket*>(packet.get())->Deserialize(&userName, &userTextColor);
 
-		//Update user color
-		user.textColor.setARGB(userTextColor);
+		//Update user values
+		user->textColor = CEGUI::Colour(userTextColor);
+		user->userName = userName;
 
-		//Let everyone know that this user has joined the server.
-		CEGUI::String text(user.userName);
-		text += " has joined the server.";
+		//Let everyone know that this user has joined the server. Reuse temp string for other purpose.
+		userName += " has joined the server.";
 
 		//Print locally to let the host know
-		PrintText(text, user.textColor);
+		PrintText(userName, userTextColor);
 
 		//Make an outpacket
-		std::unique_ptr<TextPacket> outPacket(new TextPacket(text, packet->GetSenderID()));
+		std::unique_ptr<TextPacket> outPacket(new TextPacket(userName, packet->GetSenderID()));
 
 		//Insert outpacket
 		outMessages.push_back(std::move(outPacket));
@@ -174,12 +175,12 @@ void ServerMessageParser::SendEventPacket(DataPacketType eventType)
 //Each client will then locally have to append some " has disconnected from the server." string to the end of the name
 void ServerMessageParser::SendDisconnectMessage(UserID client_id)
 {
-	ChatUserData user;
+	ChatUserData* user;
 
 	//If there is a client
 	if(userManager->GetUser(client_id, &user))
 	{
-		CEGUI::String msg(user.userName + " has disconnected from the server.");
+		CEGUI::String msg(user->userName + " has disconnected from the server.");
 
 		PrintText(msg);
 
@@ -195,7 +196,7 @@ void ServerMessageParser::SendDisconnectMessage(UserID client_id)
 void ServerMessageParser::SendTextPacket(CEGUI::String text, UserID userID)
 {
 	//temporary var to hold whatever we fetch from GetUser
-	ChatUserData user;
+	ChatUserData* user = nullptr;
 
 	//True if it's the host(== 0) or we find a user inside usermanager
 	if(userID == 0 || userManager->GetUser(userID, &user))
@@ -206,27 +207,27 @@ void ServerMessageParser::SendTextPacket(CEGUI::String text, UserID userID)
 		//Super elegant solution. Might make a better solution at some point. If I feel the need.
 		if(userID == 0)
 		{
-			user = userManager->GetHostData();
+			*user = userManager->GetHostData();
 
-			outMessage = "[Host] "+user.userName + ": " + text;
+			outMessage = "[Host] " + user->userName + ": " + text;
 		}
-		else if(user.permissions == SuperAdmin)
+		else if(user->permissions == SuperAdmin)
 		{
-			outMessage = "[SuperAdmin] "+user.userName + ": " + text;
+			outMessage = "[SuperAdmin] " + user->userName + ": " + text;
 		}
-		else if(user.permissions == Admin)
+		else if(user->permissions == Admin)
 		{
-			outMessage = "[Admin] "+user.userName + ": " + text;
+			outMessage = "[Admin] " + user->userName + ": " + text;
 		}
 		else
 		{
-			outMessage = user.userName + ": " + text;
+			outMessage = user->userName + ": " + text;
 		}
 
-		PrintText(outMessage, user.textColor);
+		PrintText(outMessage, user->textColor);
 
 		//Prepare packet. This means serializing the header and resizing the packet body vector to outMessage.size().
-		std::unique_ptr<ColoredTextPacket> outPacket(new ColoredTextPacket(outMessage, user.textColor, userID));
+		std::unique_ptr<ColoredTextPacket> outPacket(new ColoredTextPacket(outMessage, user->textColor, userID));
 
 		outMessages.push_back(std::move(outPacket));
 	}

@@ -70,12 +70,18 @@ DataPacketType PacketHeader::GetType()
 {
 	unsigned short outType(0);
 	memcpy(&outType, dataArray, stepSize);
-	return static_cast<DataPacketType>(ntohs(outType));
+
+	outType = ntohs(outType);
+
+	return static_cast<DataPacketType>(outType);
 }
 
 size_t PacketHeader::GetSize()
 {
 	unsigned short outSize;
 	memcpy(&outSize, dataArray+stepSize, stepSize);
-	return ntohs(outSize);
+
+	outSize = ntohs(outSize);
+
+	return outSize;
 }
