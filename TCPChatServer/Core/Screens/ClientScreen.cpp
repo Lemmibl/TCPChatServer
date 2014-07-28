@@ -29,8 +29,6 @@ bool ClientScreen::Enter()
 		{
 			return false;
 		}
-
-		isInitialized = true;
 	}
 	else
 	{
@@ -91,6 +89,8 @@ bool ClientScreen::Initialize()
 	//Create our client but don't connect or start anything yet
 	chatClient.reset(new TCPClient(consoleWindow.get()));
 
+	isInitialized = true;
+
 	return true;
 }
 
@@ -115,7 +115,10 @@ bool ClientScreen::Update( double deltaTime )
 	if(connectionActive)
 	{
 		//Receive data from the server. If function returns false, it means something went wrong or that we were disconnected from the host (on purpose).
-		connectionActive = chatClient->ReceiveData(messageParser->GetInMessageQueue());
+		if(!chatClient->ReceiveData(messageParser->GetInMessageQueue()))
+		{
+			UpdateConnectionStatus(false);
+		}
 
 		//Get any messages we've written to the console window
 		auto& localMessages = consoleWindow->GetNewMessages();
@@ -126,11 +129,17 @@ bool ClientScreen::Update( double deltaTime )
 			messageParser->SendTextPacket(localMessages[i], true, sidebarWindow->GetUserColor());
 		}
 
+		//Don't forget to empty out
+		localMessages.clear();
+
 		//Process external messages from server through inMessageQueue
 		messageParser->Update();
 
 		//Send any data we've queued up
-		connectionActive = chatClient->SendDataToServer(messageParser->GetOutMessageQueue());
+		if(!chatClient->SendDataToServer(messageParser->GetOutMessageQueue()))
+		{
+			UpdateConnectionStatus(false);
+		}
 	}
 
 	return true;
@@ -175,13 +184,14 @@ void ClientScreen::UpdateConnectionStatus(bool active)
 		else
 		{
 			CEGUIMessageBox::CreateMessageBox("Couldn't connect to the server. Did you write the right IP?");
-
-			active = false;
+			connectionActive = false;
 			sidebarWindow->Disconnect();
 		}
 	}
 	else
 	{
+		connectionActive = false;
+		sidebarWindow->Disconnect();
 		chatClient->Disconnect();
 	}
 }

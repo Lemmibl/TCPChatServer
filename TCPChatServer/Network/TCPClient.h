@@ -24,7 +24,7 @@ TCPClient(GameConsoleWindow* const console);
 ~TCPClient();
 
 //Connect function, with default ip and port in case nothing is entered
-bool Connect(CEGUI::String ip, CEGUI::String port = "22222");
+bool Connect(std::string ip, CEGUI::String port = "22222");
 
 //If we receive any data, it's put into outData to be processed by client message handler
 bool ReceiveData(std::vector<std::unique_ptr<Packet>>& outData);

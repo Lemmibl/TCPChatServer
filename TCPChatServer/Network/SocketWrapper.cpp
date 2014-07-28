@@ -12,7 +12,7 @@ SocketWrapper::SocketWrapper(sock_t externalSocket)
 
 SocketWrapper::~SocketWrapper()
 {
-	CloseSocket();
+	//CloseSocket();
 }
 
 int SocketWrapper::CloseSocket()
@@ -20,7 +20,7 @@ int SocketWrapper::CloseSocket()
 	int result(0);
 
 	//Release socket...
-	if(socket != 0)
+	if(socket != INVALID_SOCKET)
 	{
 #ifdef WIN32
 		result = closesocket(socket);
@@ -33,7 +33,6 @@ int SocketWrapper::CloseSocket()
 
 	return result;
 }
-
 
 int SocketWrapper::SendData(const char* sendingBuffer, const int bufferSize, const int flag)
 {

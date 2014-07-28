@@ -3,8 +3,9 @@
 #include <string.h> //for memcpy
 
 ColoredTextPacket::ColoredTextPacket(CEGUI::String text, CEGUI::argb_t color,  UserID senderID)
-: Packet(COLOREDSTRINGDATA, sizeof(CEGUI::argb_t)+text.size(), senderID)
+: Packet(COLOREDSTRINGDATA, (sizeof(color)+text.size()), senderID)
 {
+	Serialize(text, color);
 }
 
 ColoredTextPacket::ColoredTextPacket(const char* inData, int dataSize, UserID senderID)

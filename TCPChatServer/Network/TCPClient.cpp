@@ -23,7 +23,7 @@ TCPClient::~TCPClient()
 	Shutdown();
 }
 
-bool TCPClient::Connect(CEGUI::String ip, CEGUI::String port)
+bool TCPClient::Connect(std::string ip, CEGUI::String port)
 {
 	addrinfo* result = NULL;
 	addrinfo* ptr = NULL;
@@ -43,7 +43,7 @@ bool TCPClient::Connect(CEGUI::String ip, CEGUI::String port)
 
 	// Resolve the server address and port
 	iResult = getaddrinfo(ip.c_str(), port.c_str(), &hints, &result);
-	if (iResult < 0) 
+	if (iResult != 0) 
 	{
 		consoleWindow->PrintText("getaddrinfo failed. Error code: " + iResult);
 		CloseWSA();
@@ -55,8 +55,8 @@ bool TCPClient::Connect(CEGUI::String ip, CEGUI::String port)
 	for(ptr = result; ptr != NULL; ptr = ptr->ai_next)
 	{
 		// Create a SOCKET for connecting to server
-		connectionSocket.GetSocket() = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-		if (connectionSocket.GetSocket() == INVALID_SOCKET) 
+		connectionSocket.SetNewSocket(socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol));
+		if (*connectionSocket.GetSocket() == INVALID_SOCKET) 
 		{
 			consoleWindow->PrintText("Socket failed with error code: " + WSAGetLastError());
 			CloseWSA();
@@ -64,9 +64,10 @@ bool TCPClient::Connect(CEGUI::String ip, CEGUI::String port)
 		}
 
 		// Connect to server.
-		iResult = connect(connectionSocket.GetSocket(), ptr->ai_addr, (int)ptr->ai_addrlen);
+		iResult = connect(*connectionSocket.GetSocket(), ptr->ai_addr, (int)ptr->ai_addrlen);
 		if (iResult == SOCKET_ERROR) 
 		{
+			iResult = WSAGetLastError();
 			connectionSocket.CloseSocket();
 			continue;
 		}
@@ -75,7 +76,7 @@ bool TCPClient::Connect(CEGUI::String ip, CEGUI::String port)
 
 	freeaddrinfo(result);
 
-	if (connectionSocket.GetSocket() == INVALID_SOCKET) 
+	if (*connectionSocket.GetSocket() == INVALID_SOCKET) 
 	{
 		consoleWindow->PrintText("Unable to connect to server!");
 		CloseWSA();
@@ -88,7 +89,7 @@ bool TCPClient::Connect(CEGUI::String ip, CEGUI::String port)
 	//Here is an important piece of information. We are going to set our socket to be non-blocking so that 
 	// it will not wait on send() and receive() functions when there is no data to send/receive. 
 	// This is necessary for our multiplayer game since we'd like the game to keep going if there isn't anything to send or receive to or from a client.
-	iResult = ioctlsocket(connectionSocket.GetSocket(), FIONBIO, &iMode);
+	iResult = ioctlsocket(*connectionSocket.GetSocket(), FIONBIO, &iMode);
 	if (iResult == SOCKET_ERROR)
 	{
 		consoleWindow->PrintText("ioctlsocket failed with error: " + WSAGetLastError());
@@ -100,8 +101,8 @@ bool TCPClient::Connect(CEGUI::String ip, CEGUI::String port)
 	//Disable Nagle algorithm
 	//http://forums.codeguru.com/showthread.php?136908-Winsock-and-NAGLE-algorithm
 	//Windows Sockets applications can disable the Nagle algorithm for their connections by setting the TCP_NODELAY socket option.
-	//char value = 1;
-	//setsockopt(connectionSocket, IPPROTO_TCP, TCP_NODELAY, &value, sizeof(value));
+	char value = 1;
+	setsockopt(*connectionSocket.GetSocket(), IPPROTO_TCP, TCP_NODELAY, &value, sizeof(value));
 
 	return true;
 }
@@ -152,12 +153,20 @@ bool TCPClient::SendDataToServer(std::vector<std::unique_ptr<Packet>>& inData)
 	for(unsigned int i = 0; i < inData.size(); ++i)
 	{
 		//Send header
-		connectionSocket.SendData(inData[i]->GetHeader()->dataArray, PacketHeader::SizeOfStruct());
+		int result = connectionSocket.SendData(inData[i]->GetHeader()->dataArray, PacketHeader::SizeOfStruct());
+		if(result <= 0)
+		{
+			return false;
+		}
 
 		//If it's a type of packet that contains a body after the header, we send the body
 		if(inData[i]->GetHeader()->GetSize() > 0)
 		{
-			connectionSocket.SendData(inData[i]->GetData().data(), inData[i]->GetData().size());
+			result = connectionSocket.SendData(inData[i]->GetData().data(), inData[i]->GetData().size());
+			if(result <= 0)
+			{
+				return false;
+			}
 		}
 	}
 
@@ -172,7 +181,7 @@ void TCPClient::Disconnect()
 
 	// shutdown the connection since no more data will be sent or read
 	//result = 
-	shutdown(connectionSocket.GetSocket(), SD_SEND);
+	shutdown(*connectionSocket.GetSocket(), SD_SEND);
 
 	// cleanup
 	connectionSocket.CloseSocket();

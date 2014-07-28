@@ -22,8 +22,17 @@ void ClientMessageParser::Update()
 {
 	for(unsigned int i = 0; i < inMessageQueue.size(); ++i)
 	{
-		
+		auto type = inMessageQueue[i]->GetHeader()->GetType();
+
+		switch(type)
+		{
+			case DataPacketType::STRINGDATA:		ReadStringData(std::move(inMessageQueue[i]), false); break;
+			case DataPacketType::COLOREDSTRINGDATA: ReadStringData(std::move(inMessageQueue[i]), true); break;
+			default: break;
+		}
 	}
+
+	inMessageQueue.clear();
 }
 
 void ClientMessageParser::SendTextPacket(CEGUI::String text, bool sendColor, CEGUI::argb_t color)
@@ -33,31 +42,23 @@ void ClientMessageParser::SendTextPacket(CEGUI::String text, bool sendColor, CEG
 	//We don't send if it's an empty message.....
 	if(len > 0)
 	{
-		std::unique_ptr<Packet> outPacket(nullptr);
-
 		if(sendColor == true)
 		{
 			//Make colored text packet
-			outPacket.reset(new ColoredTextPacket(text, color, 0));
+			outMessageQueue.push_back(std::unique_ptr<ColoredTextPacket>(new ColoredTextPacket(text, color, 0)));
 		}
 		else
 		{	
 			//Make normal text packet
-			outPacket.reset(new TextPacket(text, 0));
+			outMessageQueue.push_back(std::unique_ptr<TextPacket>(new TextPacket(text, 0)));
 		}
-
-		//And move it into this list
-		outMessageQueue.push_back(std::move(outPacket));
 	}
 }
 
-void ClientMessageParser::SendUserDataPacket(const ChatUserData& userData )
+void ClientMessageParser::SendUserDataPacket(ChatUserData& userData )
 {
-	//Prepare our data packet
-	std::unique_ptr<UserDataPacket> outPacket(new UserDataPacket(userData.userName, userData.textColor, userData.id));
-
 	//Insert packet
-	outMessageQueue.push_back(std::move(outPacket));
+	outMessageQueue.push_back(std::unique_ptr<UserDataPacket>(new UserDataPacket(userData.userName, userData.textColor, userData.id)));
 }
 
 void ClientMessageParser::ReadStringData(std::unique_ptr<Packet> packet, bool containsColorData )

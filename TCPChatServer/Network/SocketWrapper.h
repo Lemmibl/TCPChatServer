@@ -26,13 +26,23 @@ public:
 	SocketWrapper(sock_t socket);
 	~SocketWrapper();
 
+	void SetNewSocket(sock_t extSocket)
+	{
+		CloseSocket();
+		socket = extSocket;
+	}
+
 	//This will be called on deconstruction, but I like to have it available for explicit closing either way.
 	int CloseSocket();
 
 	int SendData(const char* sendingBuffer, const int bufferSize,			const int flag = 0);
 	int ReceiveData(char* receivingBuffer, const int bufferSize,			const int flag = 0);
 
-	sock_t& GetSocket() { return socket; }
+	//that's a lot of constness right there.
+	const sock_t* const GetSocket() const
+	{ 
+		return &socket;
+	}
 
 private:
 	sock_t socket;

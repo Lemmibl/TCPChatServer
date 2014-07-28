@@ -23,6 +23,8 @@ public:
 	void Render();
 	void Exit();
 
+	GameConsoleWindow* GetConsole() { return consoleWindow.get(); }
+
 private:
 	void UpdateConnectionStatus(bool active);
 	bool InitializeGUI();

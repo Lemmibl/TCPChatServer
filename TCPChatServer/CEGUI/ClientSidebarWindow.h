@@ -28,8 +28,8 @@ public:
 	bool EventCallback_ColorChanged(const CEGUI::EventArgs &e);
 	bool EventCallback_ShutdownButtonPressed(const CEGUI::EventArgs &e);
 
-	const CEGUI::String& GetTargetIP()	{ return targetIP; }
-	const CEGUI::String& GetUserName()	{ return userName; }
+	const std::string GetTargetIP()	{ return std::string(targetIP.c_str()); } //std::string(targetIP.c_str())
+	const CEGUI::String GetUserName()	{ return userName; }
 	const CEGUI::argb_t  GetUserColor() { return userColor.getARGB(); }
 
 private:

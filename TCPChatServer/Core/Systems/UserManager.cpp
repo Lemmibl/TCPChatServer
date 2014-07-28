@@ -2,9 +2,6 @@
 
 UserManager::UserManager()
 {
-	//We don't actually use the host socket for anything interesting.
-	hostData.clientSocket = 0;
-
 	//Fill with various default values.
 	hostData.id = 0;
 	hostData.permissions = SuperAdmin;
@@ -31,7 +28,7 @@ void UserManager::Update()
 	}
 }
 
-UserID UserManager::AddUser(const SocketWrapper& userSocket, const CEGUI::String userName, const unsigned int userColor, const unsigned int ip)
+UserID UserManager::AddUser(sock_t userSocket, const CEGUI::String userName, const unsigned int userColor, const unsigned int ip)
 {
 	//Every time we get a new user, we use this value as that user's ID. Then increment by one. Should be fine as long as we don't get more than 4294967295 users.
 	static UserID UserIDCounter = 0;
@@ -46,7 +43,7 @@ UserID UserManager::AddUser(const SocketWrapper& userSocket, const CEGUI::String
 
 	//Populate this shit.
 	user.second.id = UserIDCounter; //Even if we use the userID as a key, it's still useful to contain the ID within the actual user data. For example, when we read packets from sockets in TCPServer.
-	user.second.clientSocket = userSocket;
+	user.second.clientSocket.SetNewSocket(userSocket);
 	user.second.userName = userName;
 	user.second.textColor = userColor;
 
@@ -85,6 +82,14 @@ bool UserManager::DoesUserExist(const UserID id )
 
 bool UserManager::GetUser(const UserID id, ChatUserData* outUserData )
 {
+	//If it's host, break early.
+	if(id == 0)
+	{
+		*outUserData = hostData;
+		return true;
+	}
+
+
 	//Look for a user with this ID.
 	auto& it = userDatabase.find(id);
 

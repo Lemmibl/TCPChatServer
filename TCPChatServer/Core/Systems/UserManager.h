@@ -19,7 +19,7 @@ public:
 	//Insert user into the internal unordered map if we don't find a duplicate, in which case we return that ID instead.
 	//If we don't find a duplicate, we create a new UserData and fill it with the parameters that the function received. 
 	// Finally we return the handle that is used internally to access the userData from the map.
-	UserID AddUser(const SocketWrapper& userSocket, const CEGUI::String userName, const unsigned int userColor, const unsigned int ip);
+	UserID AddUser(sock_t userSocket, const CEGUI::String userName, const unsigned int userColor, const unsigned int ip);
 	
 	//Should be self explanatory. If there is no user by that name, it fails silently.
 	void RemoveUser(const UserID id);

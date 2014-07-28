@@ -4,20 +4,30 @@
 
 
 PacketHeader::PacketHeader(DataPacketType type, size_t dataSize)
-: stepSize(sizeof(char) * 2)
+: stepSize(SIZE/2)
 {
+	//Reset everything
 	memset(dataArray, 0, SIZE);
+
 	Serialize(type, dataSize);
 }
 
-PacketHeader::PacketHeader( const char* const data )
-: stepSize(sizeof(char) * 2)
+PacketHeader::PacketHeader(char* data )
+: stepSize(SIZE/2)
 {
-	//Store type in first two bytes
-	memcpy(dataArray, data, stepSize);
+	//Reset everything
+	memset(dataArray, 0, SIZE);
 
-	//Store size in the rest of the bytes
-	memcpy(&dataArray+stepSize, &data+stepSize, stepSize);
+	DataPacketType tempType;
+	size_t tempSize;
+
+	//Read DataPacketType from first two bytes
+	memcpy(&tempType, data, stepSize);
+
+	//Read the size of the next packet that we'll receive from the next two bytes.
+	memcpy(&tempSize, data+stepSize, stepSize);
+
+	Serialize(tempType, tempSize);
 }
 
 
@@ -35,35 +45,37 @@ void PacketHeader::Serialize( DataPacketType dataType, int dataSize )
 	memcpy(dataArray, &tempType, stepSize);
 
 	//Store size in the rest of the bytes
-	memcpy(&dataArray+stepSize, &tempSize, stepSize);
+	memcpy(dataArray+stepSize, &tempSize, stepSize);
 }
 
 void PacketHeader::Deserialize( DataPacketType* outType, int* outSize )
 {
+	unsigned short tempType(0);
+	unsigned short tempSize(0);
+
 	//Read DataPacketType from first two bytes
-	memcpy(outType, dataArray, stepSize);
+	memcpy(&tempType, dataArray, stepSize);
 
 	//Convert it using appropriate function.
-	*outType = static_cast<DataPacketType>(ntohs(*outType));
+	*outType = static_cast<DataPacketType>(tempType); //static_cast<DataPacketType>(ntohs(tempType));
 
 	//Read the size of the next packet that we'll receive from the next two bytes.
-	memcpy(outSize, dataArray+stepSize, stepSize);
+	memcpy(&tempSize, dataArray+stepSize, stepSize);
 
 	//Convert data using appropriate function.
-	//Cast it up from ushort to uint. Not really needed but I use uints outside so might as well implicitly cast it.
-	*outSize = ntohs(*outSize);
+	*outSize = tempSize; //ntohs(tempSize);
 }
 
 DataPacketType PacketHeader::GetType()
 {
-	DataPacketType outType;
+	unsigned short outType(0);
 	memcpy(&outType, dataArray, stepSize);
-	return outType;
+	return static_cast<DataPacketType>(ntohs(outType));
 }
 
 size_t PacketHeader::GetSize()
 {
-	size_t outSize;
+	unsigned short outSize;
 	memcpy(&outSize, dataArray+stepSize, stepSize);
-	return outSize;
+	return ntohs(outSize);
 }

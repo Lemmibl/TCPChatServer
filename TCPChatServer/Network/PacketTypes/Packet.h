@@ -20,6 +20,11 @@ public:
 	std::vector<char>& GetData();
 
 	
+private:
+	//They were all sent by someone with an ID... Hopefully.
+	//If the ID is == 0 it means it's from the host/server.
+	UserID userID;
+
 	// All packets currently have three things in common:
 protected:
 
@@ -28,11 +33,6 @@ protected:
 	
 	//They will... pretty much all contain some form of data. If they don't, we just make an empty vector.
 	std::vector<char> dataVector;
-
-private:
-	//They were all sent by someone with an ID... Hopefully.
-	//If the ID is == 0 it means it's from the host/server.
-	UserID userID;
 
 private:
 	//Declare but don't define. We don't want people to be able to construct an empty packet.

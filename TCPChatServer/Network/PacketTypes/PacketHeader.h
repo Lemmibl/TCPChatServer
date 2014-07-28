@@ -3,9 +3,13 @@
 
 class PacketHeader
 {
+private:
+	//Big ugly letters for a big ugly thing.
+	static const size_t SIZE = sizeof(char) * 4; 
+
 public:
 	PacketHeader(DataPacketType type, size_t dataSize);
-	PacketHeader(const char* const data);
+	PacketHeader(char* data);
 	~PacketHeader();
 
 	static const size_t SizeOfStruct() { return SIZE; }
@@ -17,11 +21,8 @@ public:
 	size_t GetSize();
 
 	//Public on purpose
-	char dataArray[4];
+	char dataArray[SIZE];
 
-private:
-	//Big ugly letters for a big ugly thing.
-	static const size_t SIZE = sizeof(char) * 4; 
 
 private:
 	//Declare but don't define. We don't want people to be able to construct an empty packet.

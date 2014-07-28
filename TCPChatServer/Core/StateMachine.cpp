@@ -24,23 +24,25 @@ StateMachine::~StateMachine()
 
 bool StateMachine::Initialize()
 {
-	serverNoGUI.reset(new ServerScreenNoGUI());
+	std::unique_ptr<MainMenuScreen> mainMenu(new MainMenuScreen());
+	//std::shared_ptr<OptionsScreen> optionsMenu = std::make_shared<OptionsScreen>();
+	std::unique_ptr<ServerScreen> serverMenu(new ServerScreen());
+	std::unique_ptr<ClientScreen> clientMenu(new ClientScreen());
+	clientMenu->Initialize();
+
+	AddNewState(std::move(mainMenu), SystemStates::MainMenuScreen);
+	//AddNewState(optionsMenu, SystemStates::OptionsScreen);
+	AddNewState(std::move(serverMenu), SystemStates::ServerScreen);
+	AddNewState(std::move(clientMenu), SystemStates::ClientScreen);
+
+	
+	serverNoGUI.reset(new ServerScreenNoGUI(static_cast<ClientScreen*>(states[SystemStates::ClientScreen].get())->GetConsole()));
 
 	//Initializes and starts server
 	if(!serverNoGUI->Enter())
 	{
 		return false;
 	}
-
-	std::unique_ptr<MainMenuScreen> mainMenu(new MainMenuScreen());
-	//std::shared_ptr<OptionsScreen> optionsMenu = std::make_shared<OptionsScreen>();
-	std::unique_ptr<ServerScreen> serverMenu(new ServerScreen());
-	std::unique_ptr<ClientScreen> clientMenu(new ClientScreen());
-
-	AddNewState(std::move(mainMenu), SystemStates::MainMenuScreen);
-	//AddNewState(optionsMenu, SystemStates::OptionsScreen);
-	AddNewState(std::move(serverMenu), SystemStates::ServerScreen);
-	AddNewState(std::move(clientMenu), SystemStates::ClientScreen);
 
 	//Set current state to main menu
 	SwitchState(SystemStates::MainMenuScreen);

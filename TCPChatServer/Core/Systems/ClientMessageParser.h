@@ -19,7 +19,7 @@ public:
 	void Update();
 
 	void SendTextPacket(CEGUI::String text, bool sendColor, CEGUI::argb_t color = 0);
-	void SendUserDataPacket(const ChatUserData& userData);
+	void SendUserDataPacket(ChatUserData& userData);
 
 	private:
 		void ReadStringData(std::unique_ptr<Packet> packet,  bool containsColorData);

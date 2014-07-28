@@ -8,11 +8,12 @@
 class TCPServer;
 class UserManager;
 class ServerMessageParser;
+class GameConsoleWindow;
 
 class ServerScreenNoGUI : public ScreenBase, public SettingsDependent
 {
 public:
-	ServerScreenNoGUI();
+	ServerScreenNoGUI(GameConsoleWindow* tempConsole);
 	~ServerScreenNoGUI();
 
 	bool Enter();
@@ -31,6 +32,7 @@ private:
 	//void PrintMessageLog(std::vector<TextMessage>& log);
 
 private:
+	GameConsoleWindow* console;
 	ServerSettings serverSettings;
 	std::unique_ptr<UserManager> userManager;
 	std::unique_ptr<TCPServer> server;

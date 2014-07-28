@@ -23,17 +23,18 @@ void TextPacket::Serialize(CEGUI::String text)
 {
 	header.Serialize(STRINGDATA, text.size());
 	dataVector.resize(text.size());
+
 	memcpy(dataVector.data(), text.data(), text.size());
 }
 
 //Deserialize external data
 CEGUI::String TextPacket::Deserialize(const char* inData, int dataSize)
 {
-	return std::move(CEGUI::String(inData, dataSize));
+	return CEGUI::String(inData, dataSize);
 }
 
 //Deserialize using internal data
 CEGUI::String TextPacket::Deserialize()
 {
-	return std::move(CEGUI::String(dataVector.data(), dataVector.size()));
+	return CEGUI::String(dataVector.data(), dataVector.size());
 }

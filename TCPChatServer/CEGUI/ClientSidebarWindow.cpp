@@ -13,7 +13,7 @@ ClientSidebarWindow::~ClientSidebarWindow()
 {
 }
 
-void ClientSidebarWindow::Initialize( CEGUI::String filepath, CEGUI::Window* rootwindow )
+void ClientSidebarWindow::Initialize(CEGUI::String filepath, CEGUI::Window* rootwindow )
 {
 	// Get a local pointer to the CEGUI Window Manager, Purely for convenience to reduce typing
 	CEGUI::WindowManager* pWindowManager = CEGUI::WindowManager::getSingletonPtr();

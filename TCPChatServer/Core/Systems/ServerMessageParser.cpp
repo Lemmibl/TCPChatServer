@@ -64,7 +64,8 @@ void ServerMessageParser::Update()
 
 	for(unsigned int i = 0; i < inMessages.size(); ++i)
 	{
-		switch(inMessages[i]->GetHeader()->GetType())
+		DataPacketType type = inMessages[i]->GetHeader()->GetType();
+		switch(type)
 		{
 			case STRINGDATA:		ReadStringData(std::move(inMessages[i]), false); break;
 			case COLOREDSTRINGDATA: ReadStringData(std::move(inMessages[i]), true); break;
@@ -85,11 +86,12 @@ void ServerMessageParser::Update()
 void ServerMessageParser::ReadStringData(std::unique_ptr<Packet> packet, bool containsColorData)
 {
 	ChatUserData user;
+	const UserID sender = packet->GetSenderID();
 
-	if(userManager->GetUser(packet->GetSenderID(), &user))
+	if(userManager->GetUser(sender, &user))
 	{
 		CEGUI::String packetString;
-		CEGUI::argb_t textColor;
+		CEGUI::argb_t textColor = 0xFFFFFFFF;
 
 		if(containsColorData)
 		{
@@ -101,29 +103,26 @@ void ServerMessageParser::ReadStringData(std::unique_ptr<Packet> packet, bool co
 			packetString = static_cast<TextPacket*>(packet.get())->Deserialize();
 
 			//If packet doesn't contain color data, we just fetch it from the stored userColor from usermanager
-			textColor = user.textColor;
-		}	
-	
+			//textColor = user.textColor;
+		}
+
 		//We know that this packet is text, and that the body's data vector is going to contain the text in char format. So we simply initialize a string with this data.
 		//We also append user's username before the message.
 		CEGUI::String text(user.userName + ": " + packetString);
 
 		//Print text locally. Move by value? Idk if best way to solve this. Or if there's even a problem to begin with.
-		PrintText(text, CEGUI::Colour(user.textColor));
+		PrintText(text, textColor);
 
-		//So now that we're done with the packet, we update it to contain the altered text by re-serializing the new data.
+		//So now that we're done with the data, create a new packet and send it out to the clients.
 		if(containsColorData)
 		{
-			static_cast<ColoredTextPacket*>(packet.get())->Serialize(text, textColor);
+			outMessages.push_back(std::unique_ptr<ColoredTextPacket>(new ColoredTextPacket(text, user.textColor.getARGB(), sender)));
 		}
 		else
 		{
 			//Get text from packet
-			static_cast<TextPacket*>(packet.get())->Serialize(text);
+			outMessages.push_back(std::unique_ptr<TextPacket>(new TextPacket(text, sender)));
 		}	
-
-		//And then insert the packet back to the other queue, because it's now going to be redistributed to all other users.
-		outMessages.push_back(std::move(packet));
 	}
 }
 
@@ -138,13 +137,14 @@ void ServerMessageParser::ReadUserData(std::unique_ptr<Packet> packet)
 		CEGUI::argb_t userTextColor;
 
 		//Extract data into local variables
-		static_cast<UserDataPacket* const>(packet.get())->Deserialize(&user.userName, &userTextColor);
+		static_cast<UserDataPacket*>(packet.get())->Deserialize(&user.userName, &userTextColor);
 
 		//Update user color
 		user.textColor.setARGB(userTextColor);
 
 		//Let everyone know that this user has joined the server.
-		CEGUI::String text(user.userName + " has joined the server.", user.textColor);
+		CEGUI::String text(user.userName);
+		text += " has joined the server.";
 
 		//Print locally to let the host know
 		PrintText(text, user.textColor);
