@@ -8,7 +8,7 @@ class Packet
 {
 public:
 	//Constructor for serializing the packet (when sending data packets)
-	Packet(DataPacketType type, size_t dataSize, UserID id);
+	Packet(PacketType::Type type, size_t dataSize, UserID id);
 
 	//Constructor for deserializing the packet (when receiving data packets)
 	Packet(PacketHeader headerData, UserID id);

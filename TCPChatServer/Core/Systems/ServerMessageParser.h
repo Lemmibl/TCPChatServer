@@ -26,7 +26,7 @@ public:
 
 	void HandleLocalMessages(std::vector<CEGUI::String>& messages);
 
-	void SendEventPacket(DataPacketType eventType);
+	void SendEventPacket(PacketType::Type eventType);
 	void SendTextPacket(CEGUI::String text, UserID userID = 0); //UserID can be == 0. That means the server host is sending a message, aka it's local.
 
 	//Sends a packet with size 0. Use purely for events that require no data, such as server shutdowns and things. TODO: think about this and see if there actually are zero-data events...

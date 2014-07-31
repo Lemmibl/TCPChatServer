@@ -41,7 +41,7 @@ void ServerMessageParser::HandleLocalMessages(std::vector<CEGUI::String>& messag
 	for(unsigned int i = 0; i < messages.size(); ++i)
 	{
 		//Create new string with our username and privilege level appended to the message.
-		CEGUI::String text("[Host] " + user.userName + ": " + messages[i]);
+		CEGUI::String text(("[Host] " + user.userName + ": " + messages[i]));
 
 		//Print text through text console.
 		PrintText(text, user.textColor);
@@ -64,13 +64,13 @@ void ServerMessageParser::Update()
 
 	for(unsigned int i = 0; i < inMessages.size(); ++i)
 	{
-		DataPacketType type = inMessages[i]->GetHeader()->GetType();
+		PacketType::Type type = inMessages[i]->GetHeader()->GetType();
 		switch(type)
 		{
-			case STRINGDATA:		ReadStringData(std::move(inMessages[i]), false); break;
-			case COLOREDSTRINGDATA: ReadStringData(std::move(inMessages[i]), true); break;
-			case DISCONNECT:		SendDisconnectMessage(inMessages[i]->GetSenderID()); break;
-			case USERDATA:			ReadUserData(std::move(inMessages[i])); break;
+			case PacketType::STRING:			ReadStringData(std::move(inMessages[i]), false); break;
+			case PacketType::COLORED_STRING:	ReadStringData(std::move(inMessages[i]), true); break;
+			case PacketType::DISCONNECT:		SendDisconnectMessage(inMessages[i]->GetSenderID()); break;
+			case PacketType::USER_DATA:			ReadUserData(std::move(inMessages[i])); break;
 			default:				break;
 		}
 	}
@@ -85,7 +85,7 @@ void ServerMessageParser::Update()
 
 void ServerMessageParser::ReadStringData(std::unique_ptr<Packet> packet, bool containsColorData)
 {
-	ChatUserData* user;
+	ChatUserData* user = nullptr;
 	const UserID sender = packet->GetSenderID();
 
 	if(userManager->GetUser(sender, &user))
@@ -162,7 +162,7 @@ void ServerMessageParser::ReadUserData(std::unique_ptr<Packet> packet)
 //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ Send functions ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 //¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 
-void ServerMessageParser::SendEventPacket(DataPacketType eventType)
+void ServerMessageParser::SendEventPacket(PacketType::Type eventType)
 {
 	std::unique_ptr<Packet> packet(new Packet(eventType, 0, UserID(0)));
 
@@ -175,7 +175,7 @@ void ServerMessageParser::SendEventPacket(DataPacketType eventType)
 //Each client will then locally have to append some " has disconnected from the server." string to the end of the name
 void ServerMessageParser::SendDisconnectMessage(UserID client_id)
 {
-	ChatUserData* user;
+	ChatUserData* user = nullptr;
 
 	//If there is a client
 	if(userManager->GetUser(client_id, &user))

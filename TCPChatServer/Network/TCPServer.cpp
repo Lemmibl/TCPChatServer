@@ -203,7 +203,7 @@ void TCPServer::ExtractClientData(UserID id, std::vector<std::unique_ptr<Packet>
 	PacketHeader packetHeader(network_data+packetIndex);
 
 	//Variables to hold data extracted when we deserialize packet header
-	DataPacketType dataType;
+	PacketType::Type dataType;
 	int dataSize;
 
 	//Extract data from header into the above declared variables
@@ -217,9 +217,9 @@ void TCPServer::ExtractClientData(UserID id, std::vector<std::unique_ptr<Packet>
 
 	switch(dataType)
 	{
-		case STRINGDATA:		outData.push_back(std::unique_ptr<TextPacket>(new TextPacket(network_data+packetIndex, dataSize, id)));					break;
-		case COLOREDSTRINGDATA: outData.push_back(std::unique_ptr<ColoredTextPacket>(new ColoredTextPacket(network_data+packetIndex, dataSize, id)));	break;
-		case USERDATA:			outData.push_back(std::unique_ptr<UserDataPacket>(new UserDataPacket(network_data+packetIndex, dataSize, id)));			break;
+		case PacketType::STRING:			outData.push_back(std::unique_ptr<TextPacket>(new TextPacket(network_data+packetIndex, dataSize, id)));					break;
+		case PacketType::COLORED_STRING:	outData.push_back(std::unique_ptr<ColoredTextPacket>(new ColoredTextPacket(network_data+packetIndex, dataSize, id)));	break;
+		case PacketType::USER_DATA:			outData.push_back(std::unique_ptr<UserDataPacket>(new UserDataPacket(network_data+packetIndex, dataSize, id)));			break;
 		//Event packet or a packet without any data body (only header)
 		default:				outData.push_back(std::unique_ptr<Packet>(new Packet(packetHeader, id)));												break;
 	}

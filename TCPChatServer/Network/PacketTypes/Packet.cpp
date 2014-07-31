@@ -1,7 +1,7 @@
 #include "Packet.h"
 
 
-Packet::Packet(DataPacketType type, size_t dataSize, UserID id)
+Packet::Packet(PacketType::Type type, size_t dataSize, UserID id)
 	: header(type, dataSize),
 	userID(id)
 {

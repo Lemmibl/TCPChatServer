@@ -8,16 +8,16 @@ private:
 	static const size_t SIZE = sizeof(char) * 4; 
 
 public:
-	PacketHeader(DataPacketType type, size_t dataSize);
+	PacketHeader(PacketType::Type type, size_t dataSize);
 	PacketHeader(char* data);
 	~PacketHeader();
 
 	static const size_t SizeOfStruct() { return SIZE; }
 
-	void Serialize(DataPacketType dataType, int dataSize);
-	void Deserialize(DataPacketType* outType, int* outSize);
+	void Serialize(PacketType::Type dataType, int dataSize);
+	void Deserialize(PacketType::Type* outType, int* outSize);
 
-	DataPacketType GetType();
+	PacketType::Type GetType();
 	size_t GetSize();
 
 	//Public on purpose

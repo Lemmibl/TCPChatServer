@@ -136,7 +136,7 @@ void ClientSidebarWindow::Reset()
 	connectionActive = false;
 	shouldQuit = false;
 
-	sidebarWindow->getChild("NameEditbox")->setText("Admin");
+	sidebarWindow->getChild("NameEditbox")->setText("A noob");
 	userName = sidebarWindow->getChild("NameEditbox")->getText();
 
 	sidebarWindow->getChild("IPEditbox")->setText("127.0.0.1");
