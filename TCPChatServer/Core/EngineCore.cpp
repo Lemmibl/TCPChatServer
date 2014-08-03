@@ -30,9 +30,6 @@ void EngineCore::Cleanup()
 
 bool EngineCore::Initialize()
 {
-	//Load settings file before creating anything that will use the settings.
-	SettingsManager::GetInstance().LoadSettings();
-
 	//Save a ptr to handler to save a few instructions on all those ::GetInstance() calls
 	inputHandler = &InputHandler::GetInstance(); 
 

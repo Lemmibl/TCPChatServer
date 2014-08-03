@@ -13,19 +13,21 @@ public:
 	//Constructor for deserializing the packet (when receiving data packets)
 	Packet(PacketHeader headerData, UserID id);
 
+	//Virtual because this is a base class that we'll be inheriting from
 	virtual ~Packet();
 
+	//ID of who sent the data that is contained within this packet
 	const UserID GetSenderID();
+
 	PacketHeader* const GetHeader();
 	std::vector<char>& GetData();
 
-	
+	// All packets currently have three things in common:
 private:
 	//They were all sent by someone with an ID... Hopefully.
 	//If the ID is == 0 it means it's from the host/server.
 	UserID userID;
 
-	// All packets currently have three things in common:
 protected:
 
 	//They're all preceded by a header.	

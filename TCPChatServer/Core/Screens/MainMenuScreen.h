@@ -9,11 +9,11 @@ public:
 	MainMenuScreen();
 	~MainMenuScreen();
 
-	bool Enter();
-	bool Initialize();
-	bool Update(double deltaTime);
-	void Render();
-	void Exit();
+	virtual bool Enter();
+	virtual bool Initialize();
+	virtual bool Update(double deltaTime);
+	virtual void Render();
+	virtual void Exit();
 
 private:
 	CEGUI::Window* rootWindow;

@@ -16,12 +16,12 @@ public:
 	ServerScreenNoGUI(GameConsoleWindow* tempConsole);
 	~ServerScreenNoGUI();
 
-	bool Enter();
-	bool Initialize();
+	virtual bool Enter();
+	virtual bool Initialize();
 
-	bool Update(double deltaTime);
-	void Render();
-	void Exit();
+	virtual bool Update(double deltaTime);
+	virtual void Render();
+	virtual void Exit();
 
 	virtual void OnSettingsReload( Config* cfg );
 

@@ -31,8 +31,8 @@ private:
 	// Private Constructor
 	SettingsManager()
 	{
-		////Load config file upon construction
-		//cfg.readFile(filepath.c_str());
+		//Load config file upon construction
+		cfg.readFile(filepath.c_str());
 	}
 
 	//Stop the compiler from generating ways to copy the object

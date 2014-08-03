@@ -12,7 +12,7 @@ PacketHeader::PacketHeader(PacketType::Type type, size_t dataSize)
 	Serialize(type, dataSize);
 }
 
-PacketHeader::PacketHeader(char* data )
+PacketHeader::PacketHeader(char* data)
 : stepSize(SIZE/2)
 {
 	//Reset everything
@@ -48,7 +48,7 @@ void PacketHeader::Serialize(PacketType::Type dataType, int dataSize )
 	memcpy(dataArray+stepSize, &tempSize, stepSize);
 }
 
-void PacketHeader::Deserialize(PacketType::Type* outType, int* outSize )
+void PacketHeader::Deserialize(PacketType::Type* outType, int* outSize)
 {
 	unsigned short tempType(0);
 	unsigned short tempSize(0);
