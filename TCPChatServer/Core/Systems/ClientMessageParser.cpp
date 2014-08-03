@@ -55,7 +55,7 @@ void ClientMessageParser::SendTextPacket(CEGUI::String text, bool sendColor, CEG
 	}
 }
 
-void ClientMessageParser::SendUserDataPacket(ChatUserData& userData )
+void ClientMessageParser::SendUserDataPacket(ChatUserData& userData)
 {
 	//Insert packet
 	outMessageQueue.push_back(std::unique_ptr<UserDataPacket>(new UserDataPacket(userData.userName, userData.textColor, userData.id)));
