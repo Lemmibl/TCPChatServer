@@ -1,9 +1,10 @@
 #pragma once
+#include <memory>
 #include <unordered_map>
 #include "SystemStates.h"
 
 class ScreenBase;
-class ServerScreenNoGUI;
+class DebugServer;
 
 //Simply a state machine that I use to move from one stage of the engine to another.
 //Currently we only have main menu and "running", but I want to leave room for other things in the future. For example: options screen.
@@ -26,7 +27,8 @@ private:
 private:
 	bool running;
 
-	std::unique_ptr<ServerScreenNoGUI> serverNoGUI;
+	//Temporary!
+	std::unique_ptr<DebugServer> debugServer;
 
 	std::unordered_map<SystemStates::State, std::unique_ptr<ScreenBase>> states;
 

@@ -78,6 +78,7 @@
     <ClCompile Include="CEGUI\TextMessage.h" />
     <ClCompile Include="Core\Screens\ServerScreenNoGUI.cpp" />
     <ClCompile Include="Core\Systems\ClientMessageParser.cpp" />
+    <ClCompile Include="Core\Systems\DebugServer.cpp" />
     <ClCompile Include="Network\PacketTypes\ColoredTextPacket.cpp" />
     <ClCompile Include="Network\PacketTypes\Packet.cpp" />
     <ClCompile Include="CEGUI\FormattedListboxTextItem.cpp" />
@@ -105,6 +106,7 @@
   <ItemGroup>
     <ClInclude Include="CEGUI\CEGUIMessageBox.h" />
     <ClInclude Include="Core\Screens\ServerScreenNoGUI.h" />
+    <ClInclude Include="Core\Systems\DebugServer.h" />
     <ClInclude Include="Network\ChatUserData.h" />
     <ClInclude Include="Core\Systems\ClientMessageParser.h" />
     <ClInclude Include="Network\PacketTypes\ColoredTextPacket.h" />

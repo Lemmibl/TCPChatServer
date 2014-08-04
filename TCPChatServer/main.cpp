@@ -1,12 +1,8 @@
 #pragma once
 
-#ifdef _DEBUG
-#include <vld.h>
-#endif
-
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #include "Core/EngineCore.h"

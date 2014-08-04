@@ -7,7 +7,7 @@
 #include "Screens/OptionsScreen.h"
 #include "Screens/ClientScreen.h"
 #include "Screens/ServerScreen.h"
-#include "Screens/ServerScreenNoGUI.h"
+#include "Systems/DebugServer.h"
 
 #include <GLFW/glfw3.h>
 
@@ -35,14 +35,7 @@ bool StateMachine::Initialize()
 	AddNewState(std::move(serverMenu), SystemStates::ServerScreen);
 	AddNewState(std::move(clientMenu), SystemStates::ClientScreen);
 
-	
-	serverNoGUI.reset(new ServerScreenNoGUI(static_cast<ClientScreen*>(states[SystemStates::ClientScreen].get())->GetConsole()));
-
-	//Initializes and starts server
-	if(!serverNoGUI->Enter())
-	{
-		return false;
-	}
+	debugServer.reset(new DebugServer(static_cast<ClientScreen*>(states[SystemStates::ClientScreen].get())->GetConsole()));
 
 	//Set current state to main menu
 	SwitchState(SystemStates::MainMenuScreen);
@@ -60,7 +53,7 @@ bool StateMachine::Update()
 
 	double glfwTime = glfwGetTime();
 
-	if(!serverNoGUI->Update(glfwTime))
+	if(!debugServer->Update(glfwTime))
 	{
 		return false;
 	}

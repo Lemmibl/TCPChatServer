@@ -30,7 +30,7 @@ void EngineCore::Cleanup()
 
 bool EngineCore::Initialize()
 {
-	//Save a ptr to handler to save a few instructions on all those ::GetInstance() calls
+	//Save a ptr to handler to save a few instructions on all those ::GetInstance() calls that happen in the update loop.
 	inputHandler = &InputHandler::GetInstance(); 
 
 	if(!InitializeGUI())
@@ -38,7 +38,7 @@ bool EngineCore::Initialize()
 		return false;
 	}
 
-	stateMachine = std::unique_ptr<StateMachine>(new StateMachine);
+	stateMachine.reset(new StateMachine);
 
 	if(!stateMachine->Initialize())
 	{
@@ -108,9 +108,25 @@ void EngineCore::MainLoop()
 
 bool EngineCore::Update()
 {
+	/*
+	http://www.glfw.org/GLFWReference276.pdf
+	 
+	This function is used for polling for events, such as user input and window resize events. Upon calling
+	this function, all window states, keyboard states and mouse states are updated. If any related callback
+	functions are registered, these are called during the call to glfwPollEvents.
+	*/
+	glfwPollEvents();
+
+	//See if we should shut down application
+	if(glfwWindowShouldClose(glfwWindow))
+	{
+		return false;
+	}
+
 	glfwTime = glfwGetTime();
 	deltaTime = glfwTime - deltaTime;
 
+	//Inject delta time, used for things like input cooldowns (making sure we don't register every click/press 500 times per second).
 	inputHandler->Update(deltaTime);
 
 	//Update all CEGUI elements. Inject delta time.
@@ -118,12 +134,6 @@ bool EngineCore::Update()
 
 	//Update currently active screen/state	
 	if(!stateMachine->Update())
-	{
-		return false;
-	}
-
-	//See if we should shut down application
-	if(glfwWindowShouldClose(glfwWindow))
 	{
 		return false;
 	}
@@ -140,8 +150,11 @@ void EngineCore::Render()
 	//Render all GUI stuff
 	ceguiWrapper->Render();
 
+	// Render whatever state is currently active. 
+	// Not even sure if this is needed because all the states are just different menus, and they should get rendered when ceguiwrapper::render is called.
+	// I keep it in for future proofing.
 	stateMachine->Render();
 
+	//glfw stuff
 	glfwSwapBuffers(glfwWindow);	
-	glfwPollEvents();
 }

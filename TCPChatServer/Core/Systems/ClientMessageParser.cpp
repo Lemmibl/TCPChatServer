@@ -26,8 +26,8 @@ void ClientMessageParser::Update()
 
 		switch(type)
 		{
-			case PacketType::STRING:		ReadStringData(std::move(inMessageQueue[i]), false); break;
-			case PacketType::COLORED_STRING: ReadStringData(std::move(inMessageQueue[i]), true); break;
+			case PacketType::STRING:			ReadStringData(std::move(inMessageQueue[i]), false); break;
+			case PacketType::COLORED_STRING:	ReadStringData(std::move(inMessageQueue[i]), true); break;
 			default: break;
 		}
 	}

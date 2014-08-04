@@ -28,6 +28,7 @@
     <ClCompile Include="Core\Systems\InputHandler.cpp" />
     <ClCompile Include="Core\Systems\ClientMessageParser.cpp" />
     <ClCompile Include="Core\EngineCore.cpp" />
+    <ClCompile Include="Core\Systems\DebugServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Settings\SettingsDependent.h" />
@@ -65,6 +66,7 @@
     <ClInclude Include="Core\EngineCore.h" />
     <ClInclude Include="VLD\include\vld.h" />
     <ClInclude Include="VLD\include\vld_def.h" />
+    <ClInclude Include="Core\Systems\DebugServer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\LibConfig\libconfig++.dll" />
